@@ -37,6 +37,18 @@ const AMENITY_ICONS: Record<string, React.ReactNode> = {
   Pool: <Waves className="w-3.5 h-3.5" />,
 };
 
+const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
+  Studio: { bg: "#EEF0F8", text: "#1B2B6B" },
+  "1BR": { bg: "#e0e7ff", text: "#3730a3" },
+  "2BR": { bg: "#d1fae5", text: "#065f46" },
+  "3BR": { bg: "#fef3c7", text: "#92400e" },
+};
+
+function getBedType(beds: number): string {
+  if (beds === 0) return "Studio";
+  return `${beds}BR`;
+}
+
 export function ListingCard({
   listing,
   viewMode = "grid",
@@ -46,6 +58,8 @@ export function ListingCard({
 }) {
   const [liked, setLiked] = useState(false);
   const [likePopped, setLikePopped] = useState(false);
+  const typeLabel = getBedType(listing.beds);
+  const typeColor = TYPE_COLORS[typeLabel] ?? { bg: "#f3f4f6", text: "#6b7280" };
 
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -104,10 +118,18 @@ export function ListingCard({
 
   const detailsArea = (
     <div className="p-4 flex flex-col flex-1 gap-0 min-w-0">
-      {/* Title */}
-      <h3 className="font-semibold text-gray-900 text-[13px] leading-snug group-hover:text-navy transition-colors duration-200 mb-1.5">
-        {listing.title}
-      </h3>
+      {/* Title + Type */}
+      <div className="flex items-start justify-between gap-2 mb-1.5">
+        <h3 className="font-semibold text-gray-900 text-[13px] leading-snug group-hover:text-navy transition-colors duration-200">
+          {listing.title}
+        </h3>
+        <span
+          className="shrink-0 text-[11px] font-black tracking-[0.08em] uppercase rounded-lg px-2.5 py-1 leading-none"
+          style={{ background: typeColor.bg, color: typeColor.text }}
+        >
+          {typeLabel}
+        </span>
+      </div>
 
       {/* Location */}
       <div className="flex items-center gap-1 text-gray-400 mb-3">

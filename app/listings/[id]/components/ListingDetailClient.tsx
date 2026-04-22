@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   Share2,
   Heart,
+  Bookmark,
   MapPin,
   X,
   BadgeCheck,
@@ -484,6 +485,8 @@ export function ListingDetailClient({
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [saved, setSaved] = useState(false);
   const [savePop, setSavePop] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [likePop, setLikePop] = useState(false);
 
   const openLightbox = useCallback((index: number) => {
     setLightboxIndex(index);
@@ -494,6 +497,12 @@ export function ListingDetailClient({
     setSaved((v) => !v);
     setSavePop(true);
     setTimeout(() => setSavePop(false), 300);
+  };
+
+  const handleLike = () => {
+    setLiked((v) => !v);
+    setLikePop(true);
+    setTimeout(() => setLikePop(false), 300);
   };
 
   const bedLabel =
@@ -537,7 +546,7 @@ export function ListingDetailClient({
               </span>
             </div>
 
-            {/* Share + Save */}
+            {/* Share + Like + Save */}
             <div className="flex items-center gap-2 shrink-0">
               <button
                 aria-label="Share listing"
@@ -547,13 +556,13 @@ export function ListingDetailClient({
                 <span className="hidden sm:inline">Share</span>
               </button>
               <button
-                onClick={handleSave}
-                aria-label={saved ? "Remove from saved" : "Save listing"}
-                aria-pressed={saved}
+                onClick={handleLike}
+                aria-label={liked ? "Unlike listing" : "Like listing"}
+                aria-pressed={liked}
                 className={[
-                  "flex items-center gap-1.5 px-3 h-9 rounded-xl border text-sm font-semibold transition-all shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-navy focus-visible:outline-none",
-                  savePop ? "scale-110" : "scale-100",
-                  saved
+                  "flex items-center gap-1.5 px-3 h-9 rounded-xl border text-sm font-semibold transition-all shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:outline-none",
+                  likePop ? "scale-110" : "scale-100",
+                  liked
                     ? "bg-red-50 border-red-200 text-red-500"
                     : "bg-white border-gray-200 text-gray-700 hover:border-red-200 hover:text-red-400",
                 ].join(" ")}
@@ -561,7 +570,27 @@ export function ListingDetailClient({
                 <Heart
                   className={[
                     "w-3.5 h-3.5 transition-all duration-200",
-                    saved ? "fill-red-500 text-red-500" : "",
+                    liked ? "fill-red-500 text-red-500" : "",
+                  ].join(" ")}
+                />
+                <span className="hidden sm:inline">{liked ? "Liked" : "Like"}</span>
+              </button>
+              <button
+                onClick={handleSave}
+                aria-label={saved ? "Remove from saved" : "Save listing"}
+                aria-pressed={saved}
+                className={[
+                  "flex items-center gap-1.5 px-3 h-9 rounded-xl border text-sm font-semibold transition-all shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-navy focus-visible:outline-none",
+                  savePop ? "scale-110" : "scale-100",
+                  saved
+                    ? "bg-[#EEF0F8] border-navy/25 text-navy"
+                    : "bg-white border-gray-200 text-gray-700 hover:border-navy/40 hover:text-navy",
+                ].join(" ")}
+              >
+                <Bookmark
+                  className={[
+                    "w-3.5 h-3.5 transition-all duration-200",
+                    saved ? "fill-navy text-navy" : "",
                   ].join(" ")}
                 />
                 <span className="hidden sm:inline">{saved ? "Saved" : "Save"}</span>

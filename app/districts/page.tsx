@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, ShieldCheck } from "lucide-react";
+import { MapPin } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Explore Cebu Districts — PuyoTa",
@@ -136,7 +136,6 @@ function DistrictCard({ district }: { district: District }) {
 export default function DistrictsPage() {
   return (
     <>
-      {/* Page Header */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-8">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
           Explore Cebu Districts
@@ -148,7 +147,6 @@ export default function DistrictsPage() {
         </p>
       </section>
 
-      {/* District Cards Grid */}
       <section
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16"
         aria-label="Cebu districts"
