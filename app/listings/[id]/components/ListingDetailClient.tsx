@@ -527,23 +527,7 @@ export function ListingDetailClient({
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Back</span>
               </Link>
-              {listing.breadcrumb.map((crumb) => (
-                <span key={crumb.href} className="flex items-center gap-1 shrink-0">
-                  <span className="text-gray-300 text-xs mx-1">›</span>
-                  <Link
-                    href={crumb.href}
-                    className="text-gray-500 hover:text-navy transition-colors font-medium"
-                  >
-                    {crumb.label}
-                  </Link>
-                </span>
-              ))}
-              <span className="flex items-center gap-1 min-w-0">
-                <span className="text-gray-300 text-xs mx-1">›</span>
-                <span className="font-semibold text-gray-900 truncate max-w-[160px] sm:max-w-[280px]">
-                  {listing.title}
-                </span>
-              </span>
+        
             </div>
 
             {/* Share + Like + Save */}
