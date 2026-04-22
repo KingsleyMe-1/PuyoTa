@@ -6,9 +6,6 @@ export default function PhilosophySection() {
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           <div className="flex flex-col gap-6">
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-white/50">
-              PuyoTa Philosophy
-            </span>
 
             <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight max-w-md">
               Finding a home in Cebu shouldn&apos;t feel like a gamble.

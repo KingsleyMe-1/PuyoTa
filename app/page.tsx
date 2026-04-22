@@ -12,7 +12,6 @@ export default function Home() {
       <main className="flex flex-col flex-1">
         <HeroSection />
         <DistrictsSection />
-        <ListingsSection />
         <PhilosophySection />
       </main>
       <Footer />

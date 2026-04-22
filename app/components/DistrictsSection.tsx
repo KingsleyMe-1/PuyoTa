@@ -45,7 +45,7 @@ interface DistrictCardProps {
 function DistrictCard({ district, className = "" }: DistrictCardProps) {
   return (
     <Link
-      href={`/districts/${district.id}`}
+      href={`/listings?location=${encodeURIComponent(district.name)}`}
       className={`group relative rounded-2xl overflow-hidden block ${className}`}
       style={{ backgroundImage: `url(/${district.image})`, backgroundSize: "cover", backgroundPosition: "center" }}
     >
