@@ -192,6 +192,11 @@ export default function SearchBar() {
     setIsSearching(true);
     /* simulate async search – replace with real navigation/fetch */
     setTimeout(() => setIsSearching(false), 1200);
+    window.location.href = "/listings?" + new URLSearchParams({
+      location,
+      budget,
+      livingType,
+    }).toString();
   };
 
   /* icons */

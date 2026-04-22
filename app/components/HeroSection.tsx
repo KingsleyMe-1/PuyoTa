@@ -20,7 +20,7 @@ export default function HeroSection() {
         <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold text-white text-center max-w-2xl leading-tight tracking-tight px-6"
           style={{ textShadow: "0 2px 24px rgba(0,0,0,0.55)" }}
         >
-          Where do you want to live in Cebu?
+          Find your next home in Cebu City
         </h1>
         <SearchBar />
       </div>
