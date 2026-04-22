@@ -201,7 +201,7 @@ export function ListingsContent() {
         <div className="flex items-start justify-between gap-3 flex-wrap sm:flex-nowrap">
           <div className="min-w-0">
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
-              Verified Apartments in "{activeFilters.location || "Cebu City"}"
+              Verified Apartments in &quot;{activeFilters.location || "Cebu City"}&quot;
             </h1>
             <p className="text-sm text-gray-500 mt-1">
               Showing{" "}

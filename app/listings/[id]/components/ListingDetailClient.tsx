@@ -97,7 +97,7 @@ function PhotoGallery({
           <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-white/95 backdrop-blur-sm rounded-lg px-2.5 py-1.5 shadow-md">
             <BadgeCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
             <span className="text-[10px] font-black tracking-[0.2em] text-gray-700 uppercase">
-              PuyoTa Verified
+              Verified Apartment
             </span>
           </div>
           {/* Hover zoom hint */}
@@ -156,7 +156,7 @@ function PhotoGallery({
           <div className="absolute top-3 left-3 flex items-center gap-1 bg-white/95 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm">
             <BadgeCheck className="w-3 h-3 text-emerald-500 shrink-0" />
             <span className="text-[9px] font-black tracking-[0.16em] text-gray-700 uppercase">
-              PuyoTa Verified
+              Verified Apartment
             </span>
           </div>
           {/* Photo counter */}

@@ -10,7 +10,6 @@ export default function DistrictsLayout({
     <div className="flex flex-col flex-1">
       <Navbar />
       <main className="flex-1 bg-white">{children}</main>
-      <Footer />
     </div>
   );
 }
