@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import SavedListingsView from "./SavedListingsView";
 import DashboardListingDetail from "./DashboardListingDetail";
+import MessagesView from "./MessagesView";
 import {
   LayoutDashboard,
   Bookmark,
@@ -333,7 +334,12 @@ export default function TenantDashboardClient() {
         {/* Scrollable page content */}
         <main
           id="main-content"
-          className="flex-1 overflow-y-auto px-4 sm:px-6 pb-8 pt-1"
+          className={[
+            "flex-1 min-h-0",
+            activeNav === "messages"
+              ? "flex flex-col overflow-hidden px-4 sm:px-6 pb-0 pt-1"
+              : "overflow-y-auto px-4 sm:px-6 pb-8 pt-1",
+          ].join(" ")}
         >
           {activeNav === "saved" && detailListingId !== null ? (
             <DashboardListingDetail
@@ -342,6 +348,8 @@ export default function TenantDashboardClient() {
             />
           ) : activeNav === "saved" ? (
             <SavedListingsView onViewDetail={(id) => setDetailListingId(id)} />
+          ) : activeNav === "messages" ? (
+            <MessagesView />
           ) : (<>
           {/* ── Welcome + Profile Completion ─────────────── */}
           <div className="mb-5">
@@ -538,6 +546,7 @@ export default function TenantDashboardClient() {
                 <Link
                   href="/dashboard/messages"
                   className="inline-flex items-center gap-0.5 text-[11.5px] font-semibold text-[#1B2B6B] hover:underline underline-offset-2 transition-all duration-150"
+                  onClick={(e) => { e.preventDefault(); handleNavClick("messages"); }}
                 >
                   View all
                   <ArrowUpRight className="w-3 h-3" aria-hidden="true" />
