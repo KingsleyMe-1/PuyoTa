@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { LayoutGrid, List, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutGrid, List, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { FilterSidebar, type Filters } from "./FilterSidebar";
 import { ListingCard, type Listing } from "./ListingCard";
 
@@ -122,6 +122,7 @@ export function ListingsContent() {
   const [activeFilters, setActiveFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [page, setPage] = useState(1);
+  const [showFilters, setShowFilters] = useState(false);
 
   const filteredListings = useMemo(() => {
     return ALL_LISTINGS.filter((listing) => {
@@ -181,16 +182,18 @@ export function ListingsContent() {
   const pageNumbers = getPageNumbers(page, MOCK_TOTAL_PAGES);
 
   return (
-    <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 flex gap-7 items-start">
-      {/* Sidebar */}
-      <FilterSidebar onApply={handleApply} />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col lg:flex-row gap-6 lg:gap-7 items-start">
+      {/* Sidebar — always visible on desktop, collapsible on mobile */}
+      <div className={`${showFilters ? "block" : "hidden"} lg:block w-full lg:w-auto`}>
+        <FilterSidebar onApply={handleApply} />
+      </div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col gap-6 min-w-0">
+      <div className="flex-1 flex flex-col gap-6 min-w-0 w-full">
         {/* Header row */}
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+        <div className="flex items-start justify-between gap-3 flex-wrap sm:flex-nowrap">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
               Verified Apartments in Cebu
             </h1>
             <p className="text-sm text-gray-500 mt-1">
@@ -202,8 +205,19 @@ export function ListingsContent() {
             </p>
           </div>
 
-          {/* View mode toggle */}
-          <div className="flex items-center bg-white border border-gray-200 rounded-xl p-1 shadow-sm shrink-0">
+          {/* Controls — filter toggle (mobile only) + view mode */}
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => setShowFilters((v) => !v)}
+              aria-label="Toggle filters"
+              aria-pressed={showFilters}
+              className="lg:hidden flex items-center gap-1.5 px-3 h-9 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 hover:border-navy/60 hover:text-navy transition-colors shadow-sm cursor-pointer"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              <span>Filters</span>
+            </button>
+
+            <div className="flex items-center bg-white border border-gray-200 rounded-xl p-1 shadow-sm shrink-0">
             <button
               onClick={() => setViewMode("grid")}
               aria-label="Grid view"
@@ -230,6 +244,7 @@ export function ListingsContent() {
             >
               <List className="w-4 h-4" />
             </button>
+          </div>
           </div>
         </div>
 

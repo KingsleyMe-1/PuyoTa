@@ -57,7 +57,7 @@ export function ListingCard({
     <div
       className={[
         "relative overflow-hidden shrink-0",
-        viewMode === "list" ? "h-full w-64" : "h-52 w-full",
+        viewMode === "list" ? "h-48 w-full sm:h-full sm:w-64" : "h-52 w-full",
       ].join(" ")}
     >
       <Image
@@ -181,7 +181,7 @@ export function ListingCard({
 
   if (viewMode === "list") {
     return (
-      <article className="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm flex flex-row hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-pointer focus-within:ring-2 focus-within:ring-navy/20">
+      <article className="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm flex flex-col sm:flex-row hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-pointer focus-within:ring-2 focus-within:ring-navy/20">
         {imageArea}
         {detailsArea}
       </article>

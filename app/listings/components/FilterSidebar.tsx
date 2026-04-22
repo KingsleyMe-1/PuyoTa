@@ -47,7 +47,7 @@ export function FilterSidebar({ onApply }: FilterSidebarProps) {
   };
 
   return (
-    <aside className="w-64 shrink-0 bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col gap-6 h-fit sticky top-24">
+    <aside className="w-full lg:w-64 lg:shrink-0 bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col gap-6 h-fit lg:sticky lg:top-24">
       <h2 className="text-base font-bold text-gray-900">Refine Search</h2>
 
       {/* Location */}
