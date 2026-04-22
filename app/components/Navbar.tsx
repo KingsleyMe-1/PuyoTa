@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import Image from "next/image";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -25,9 +26,20 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href="/"
-          className="text-xl font-bold tracking-tight text-navy shrink-0"
+          className="shrink-0 flex items-center gap-0.5"
+          aria-label="PuyoTa — Home"
         >
-          PuyoTa
+          <Image
+            src="/PuyoTa-Logo-Icon-Transparent.png"
+            alt=""
+            aria-hidden="true"
+            width={30}
+            height={30}
+            className="object-contain"
+          />
+          <span className="text-[19px] font-bold -ml-1 text-navy">
+            uyoTa
+          </span>
         </Link>
 
         {/* Desktop Nav Links */}
