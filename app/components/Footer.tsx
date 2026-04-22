@@ -7,10 +7,6 @@ const footerLinks = {
     { label: "Terms of Service", href: "/terms" },
     { label: "Privacy Policy", href: "/privacy" },
   ],
-  resources: [
-    { label: "Cebu Living Guide", href: "/guides" },
-    { label: "Landlord Center", href: "/landlords" },
-  ],
 };
 
 export default function Footer() {
@@ -48,18 +44,6 @@ export default function Footer() {
 
           <div className="flex flex-col gap-3">
             {footerLinks.company.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-
-          <div className="flex flex-col gap-3">
-            {footerLinks.resources.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
