@@ -92,14 +92,6 @@ function DistrictCard({ district }: { district: District }) {
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/5 to-transparent" />
-
-        <div
-          className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-white text-[10px] font-bold tracking-widest uppercase"
-          style={{ background: "rgba(27,43,107,0.88)", backdropFilter: "blur(4px)" }}
-        >
-          <ShieldCheck className="w-3 h-3 shrink-0" aria-hidden="true" />
-          <span>PuyoTa Verified</span>
-        </div>
       </div>
 
       <div className="flex flex-col gap-3 p-4 flex-1">
