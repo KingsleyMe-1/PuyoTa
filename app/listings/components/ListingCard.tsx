@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Heart,
   MapPin,
@@ -163,7 +164,8 @@ export function ListingCard({
       )}
 
       {/* CTA — solid, decisive */}
-      <button
+      <Link
+        href={`/listings/${listing.id}`}
         className={[
           "mt-auto w-full rounded-xl bg-navy text-white py-2.5",
           "text-[12px] font-bold tracking-wide uppercase",
@@ -175,7 +177,7 @@ export function ListingCard({
       >
         View Details
         <ArrowUpRight className="w-3.5 h-3.5" />
-      </button>
+      </Link>
     </div>
   );
 
