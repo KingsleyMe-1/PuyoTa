@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Shield, CreditCard } from "lucide-react";
 
 export default function PhilosophySection() {
@@ -36,24 +37,15 @@ export default function PhilosophySection() {
             </div>
           </div>
 
-          <div className="relative rounded-2xl overflow-hidden h-72 lg:h-80">
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(145deg, #e8dfd0 0%, #d4c5a8 30%, #c0aa88 60%, #b09060 100%)",
-              }}
+          <div className="hidden md:block relative rounded-2xl overflow-hidden h-72 lg:h-80">
+            <Image
+              src="/Philosophy-Image.jpg"
+              alt="Aerial view of Cebu City"
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 50vw, 600px"
             />
-
-            <div
-              className="absolute inset-0 opacity-40"
-              style={{
-                background:
-                  "radial-gradient(ellipse at 55% 60%, rgba(180,140,80,0.4) 0%, rgba(100,80,40,0.6) 60%, rgba(40,30,15,0.8) 100%)",
-              }}
-            />
-            <div className="absolute bottom-4 right-4 w-16 h-16 rounded-full border border-white/20 opacity-50" />
-            <div className="absolute bottom-8 right-8 w-8 h-8 rounded-full border border-white/20 opacity-30" />
+            <div className="absolute inset-0 bg-black/5" />
           </div>
         </div>
       </div>
