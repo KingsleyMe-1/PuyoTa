@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { LayoutGrid, List, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { FilterSidebar, type Filters } from "./FilterSidebar";
 import { ListingCard, type Listing } from "./ListingCard";
@@ -119,7 +120,13 @@ function getPageNumbers(current: number, displayTotal: number): number[] {
 
 /* ─── Main component ─────────────────────────────────────── */
 export function ListingsContent() {
-  const [activeFilters, setActiveFilters] = useState<Filters>(DEFAULT_FILTERS);
+  const searchParams = useSearchParams();
+  const urlLocation = searchParams.get("location") ?? "";
+
+  const [activeFilters, setActiveFilters] = useState<Filters>(() => ({
+    ...DEFAULT_FILTERS,
+    location: urlLocation,
+  }));
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
@@ -185,7 +192,7 @@ export function ListingsContent() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col lg:flex-row gap-6 lg:gap-7 items-start">
       {/* Sidebar — always visible on desktop, collapsible on mobile */}
       <div className={`${showFilters ? "block" : "hidden"} lg:block w-full lg:w-auto`}>
-        <FilterSidebar onApply={handleApply} />
+        <FilterSidebar onApply={handleApply} initialLocation={urlLocation} />
       </div>
 
       {/* Main content */}
@@ -194,7 +201,7 @@ export function ListingsContent() {
         <div className="flex items-start justify-between gap-3 flex-wrap sm:flex-nowrap">
           <div className="min-w-0">
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
-              Verified Apartments in Cebu
+              Verified Apartments in "{activeFilters.location || "Cebu City"}"
             </h1>
             <p className="text-sm text-gray-500 mt-1">
               Showing{" "}
