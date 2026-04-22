@@ -202,7 +202,6 @@ function ConversationItem({
       <div className="relative shrink-0">
         <div
           className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-offset-1"
-          style={{ ringColor: isActive ? "rgba(255,255,255,0.25)" : "transparent" }}
         >
           <Image
             src={conv.avatar}
@@ -215,7 +214,6 @@ function ConversationItem({
         {/* Online dot */}
         <span
           className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2"
-          style={{ ringColor: isActive ? "#1B2B6B" : "white" }}
           aria-hidden="true"
         />
       </div>

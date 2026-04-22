@@ -6,6 +6,7 @@ import Link from "next/link";
 import SavedListingsView from "./SavedListingsView";
 import DashboardListingDetail from "./DashboardListingDetail";
 import MessagesView from "./MessagesView";
+import VerificationView from "./VerificationView";
 import {
   LayoutDashboard,
   Bookmark,
@@ -296,7 +297,7 @@ export default function TenantDashboardClient() {
                   className="text-[8.5px] font-bold tracking-[0.14em] uppercase"
                   style={{ color: "#34d399" }}
                 >
-                  Verified
+                  Verified Tenant
                 </span>
               </div>
             </div>
@@ -350,6 +351,8 @@ export default function TenantDashboardClient() {
             <SavedListingsView onViewDetail={(id) => setDetailListingId(id)} />
           ) : activeNav === "messages" ? (
             <MessagesView />
+          ) : activeNav === "verification" ? (
+            <VerificationView />
           ) : (<>
           {/* ── Welcome + Profile Completion ─────────────── */}
           <div className="mb-5">
@@ -393,7 +396,10 @@ export default function TenantDashboardClient() {
                 </div>
                 <div>
                   <p className="text-[11px] font-semibold text-gray-700 leading-tight">Profile setup</p>
-                  <button className="text-[10.5px] font-bold text-[#1B2B6B] hover:underline underline-offset-1 cursor-pointer transition-colors duration-150">
+                  <button
+                    onClick={() => handleNavClick("verification")}
+                    className="text-[10.5px] font-bold text-[#1B2B6B] hover:underline underline-offset-1 cursor-pointer transition-colors duration-150 focus-visible:outline-none"
+                  >
                     Finish setup →
                   </button>
                 </div>
