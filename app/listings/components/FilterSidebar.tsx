@@ -25,10 +25,11 @@ export interface Filters {
 
 interface FilterSidebarProps {
   onApply: (filters: Filters) => void;
+  initialLocation?: string;
 }
 
-export function FilterSidebar({ onApply }: FilterSidebarProps) {
-  const [location, setLocation] = useState("");
+export function FilterSidebar({ onApply, initialLocation = "" }: FilterSidebarProps) {
+  const [location, setLocation] = useState(initialLocation);
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [propertyType, setPropertyType] = useState("All Types");
@@ -50,7 +51,6 @@ export function FilterSidebar({ onApply }: FilterSidebarProps) {
     <aside className="w-full lg:w-64 lg:shrink-0 bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col gap-6 h-fit lg:sticky lg:top-24">
       <h2 className="text-base font-bold text-gray-900">Refine Search</h2>
 
-      {/* Location */}
       <div className="flex flex-col gap-2">
         <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
           Location
@@ -67,7 +67,6 @@ export function FilterSidebar({ onApply }: FilterSidebarProps) {
         </div>
       </div>
 
-      {/* Price Range */}
       <div className="flex flex-col gap-2">
         <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
           Price Range (Monthly)
@@ -93,7 +92,6 @@ export function FilterSidebar({ onApply }: FilterSidebarProps) {
         </div>
       </div>
 
-      {/* Property Type */}
       <div className="flex flex-col gap-2">
         <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
           Property Type
@@ -113,8 +111,6 @@ export function FilterSidebar({ onApply }: FilterSidebarProps) {
           <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
         </div>
       </div>
-
-      {/* Amenities */}
       <div className="flex flex-col gap-2.5">
         <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
           Amenities
@@ -138,7 +134,6 @@ export function FilterSidebar({ onApply }: FilterSidebarProps) {
         </div>
       </div>
 
-      {/* Apply Button */}
       <button
         onClick={handleApply}
         className="w-full bg-navy text-white rounded-xl py-3 text-sm font-semibold hover:bg-navy-dark transition-colors active:scale-[0.98] cursor-pointer"
