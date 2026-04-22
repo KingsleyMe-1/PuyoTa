@@ -6,7 +6,7 @@ import { MapPin, ChevronDown, Search, Building2, Banknote } from "lucide-react";
 type ActiveField = "location" | "budget" | "type" | null;
 
 const LOCATIONS = [
-  "IT Park, Ayala",
+  "IT Park",
   "Cebu Business Park",
   "Mactan Island",
   "Banawa District",
@@ -157,7 +157,7 @@ function Dropdown({
 
 /* ─── SearchBar ──────────────────────────────────────────── */
 export default function SearchBar() {
-  const [location, setLocation] = useState("IT Park, Ayala");
+  const [location, setLocation] = useState("IT Park");
   const [budget, setBudget] = useState("₱5k – ₱15k");
   const [livingType, setLivingType] = useState("Studio Apartment");
   const [activeField, setActiveField] = useState<ActiveField>(null);
