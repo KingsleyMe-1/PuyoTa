@@ -29,7 +29,32 @@ import {
   ChevronRight,
   LayoutGrid,
 } from "lucide-react";
-import type { ListingDetail } from "../page";
+
+export type ListingDetail = {
+  id: number;
+  title: string;
+  unit: string;
+  price: number;
+  priceSuffix?: string | null;
+  location: string;
+  district: string;
+  description: string;
+  beds: number;
+  baths: number;
+  sqm: number;
+  furnishing: string;
+  images: string[];
+  amenities: { name: string; icon: string }[];
+  landlord: {
+    name: string;
+    title: string;
+    rating: number;
+    reviewCount: number;
+    responseTime: string;
+    memberSince: string;
+    avatar: string;
+  } | null;
+};
 
 /* ─── Amenity icon mapping ───────────────────────────────── */
 const AMENITY_ICONS: Record<string, React.ReactNode> = {
@@ -376,7 +401,7 @@ function MapPlaceholder({ location }: { location: string }) {
 }
 
 /* ─── Landlord Card ──────────────────────────────────────── */
-function LandlordCard({ landlord }: { landlord: ListingDetail["landlord"] }) {
+function LandlordCard({ landlord }: { landlord: NonNullable<ListingDetail["landlord"]> }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       <div className="p-5 flex flex-col gap-4">
@@ -516,12 +541,10 @@ export function ListingDetailClient({
       <div className="min-h-screen bg-gray-50 pb-24 lg:pb-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
 
-          {/* ── Breadcrumb + Actions ── */}
           <div className="flex items-center justify-between gap-4 mb-5 flex-wrap sm:flex-nowrap">
-            {/* Breadcrumb */}
             <div className="flex items-center gap-0 text-sm min-w-0 flex-wrap">
               <Link
-                href="/listings"
+                href="/apartments"
                 className="flex items-center gap-1 text-gray-500 hover:text-navy transition-colors mr-2 shrink-0 font-medium"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
@@ -582,7 +605,6 @@ export function ListingDetailClient({
             </div>
           </div>
 
-          {/* ── Gallery ── */}
           <div className="mb-6">
             <PhotoGallery
               images={listing.images}
@@ -693,13 +715,13 @@ export function ListingDetailClient({
 
               {/* Landlord card — mobile only (in flow) */}
               <div className="lg:hidden">
-                <LandlordCard landlord={listing.landlord} />
+                {listing.landlord && <LandlordCard landlord={listing.landlord} />}
               </div>
             </div>
 
             {/* RIGHT: Landlord card sticky — desktop only */}
             <div className="hidden lg:block sticky top-24 self-start">
-              <LandlordCard landlord={listing.landlord} />
+              {listing.landlord && <LandlordCard landlord={listing.landlord} />}
             </div>
           </div>
         </div>

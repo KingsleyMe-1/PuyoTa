@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
+import { Districts } from "@/app/shared/mockData/DISTRICTS";
 
 export const metadata: Metadata = {
   title: "Explore Cebu Districts — PuyoTa",
@@ -9,76 +10,9 @@ export const metadata: Metadata = {
     "Discover the perfect neighborhood for your lifestyle. From bustling business hubs to serene seaside living, find verified listings in Cebu's most sought-after locations.",
 };
 
-const districts = [
-  {
-    id: "it-park-lahug",
-    name: "IT Park / Lahug",
-    locationParam: "IT Park",
-    image: "/It-park.jpg",
-    tags: ["Near Ayala Center", "Near JY Square"],
-    stats: [
-      { label: "Apartments", count: "120 Listings" },
-      { label: "Bedspaces", count: "45 Listings" },
-    ],
-  },
-  {
-    id: "business-park-banilad",
-    name: "Business Park / Banilad",
-    locationParam: "Banilad",
-    image: "/Cebu-Business-Park.jpg",
-    tags: ["Near Ayala Mall", "Near USC Talamban"],
-    stats: [
-      { label: "Apartments", count: "85 Listings" },
-      { label: "Studios", count: "32 Listings" },
-    ],
-  },
-  {
-    id: "sm-seaside-mambaling",
-    name: "SM Seaside / Mambaling",
-    locationParam: "Mambaling",
-    image: "https://picsum.photos/seed/cebu-seaside/800/480",
-    tags: ["Near CCLEX", "Seaside Living"],
-    stats: [
-      { label: "Apartments", count: "56 Listings" },
-      { label: "Condos", count: "78 Listings" },
-    ],
-  },
-  {
-    id: "mactan-lapu-lapu",
-    name: "Mactan / Lapu-Lapu",
-    locationParam: "Lapu-Lapu",
-    image: "/Mactan-Island.jpg",
-    tags: ["Near Airport", "Resort Area"],
-    stats: [
-      { label: "Apartments", count: "42 Listings" },
-      { label: "Villas", count: "18 Listings" },
-    ],
-  },
-  {
-    id: "mabolo-kasambagan",
-    name: "Mabolo / Kasambagan",
-    locationParam: "Mabolo",
-    image: "/Banawa.jpg",
-    tags: ["Bonifacio District", "Central Location"],
-    stats: [
-      { label: "Apartments", count: "95 Listings" },
-      { label: "Bedspaces", count: "62 Listings" },
-    ],
-  },
-  {
-    id: "guadalupe-capitol",
-    name: "Guadalupe / Capitol",
-    locationParam: "Guadalupe",
-    image: "/Cebu-City.jpg",
-    tags: ["Near Capitol", "Near Hospitals"],
-    stats: [
-      { label: "Apartments", count: "110 Listings" },
-      { label: "Rooms", count: "55 Listings" },
-    ],
-  },
-];
 
-type District = (typeof districts)[0];
+
+type District = (typeof Districts)[0];
 
 function DistrictCard({ district }: { district: District }) {
   return (
@@ -123,7 +57,7 @@ function DistrictCard({ district }: { district: District }) {
         </ul>
 
         <Link
-          href={`/listings?location=${encodeURIComponent(district.locationParam)}`}
+          href={`/apartments?location=${encodeURIComponent(district.locationParam)}`}
           className="mt-1 block w-full text-center text-sm font-semibold text-white bg-navy hover:bg-navy-dark transition-colors py-2.5 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
         >
           Explore Listings
@@ -152,7 +86,7 @@ export default function DistrictsPage() {
         aria-label="Cebu districts"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {districts.map((district) => (
+          {Districts.map((district) => (
             <DistrictCard key={district.id} district={district} />
           ))}
         </div>

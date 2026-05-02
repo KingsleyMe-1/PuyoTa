@@ -2,33 +2,29 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { MapPin, ChevronDown, Search, Building2, Banknote } from "lucide-react";
+import { Apartments } from "@/app/shared/mockData/APARTMENTS";
 
 type ActiveField = "location" | "budget" | "type" | null;
 
-const LOCATIONS = [
-  "IT Park",
-  "Cebu Business Park",
-  "Mactan Island",
-  "Banawa District",
-  "USC AS Fortuna",
-  "SM City Cebu",
-  "Mabolo, Cebu City",
+const LOCATIONS: string[] = [
+  ...new Set(
+    (Apartments as Array<{ location: string; landmarks: string[] }>).flatMap(
+      (a) => [a.location, ...a.landmarks]
+    )
+  ),
 ];
 
 const BUDGET_RANGES = [
-  "₱3k – ₱6k",
-  "₱5k – ₱15k",
-  "₱10k – ₱25k",
-  "₱20k – ₱40k",
-  "₱40k+",
+  "Under ₱8k",
+  "₱8k - ₱15k",
+  "₱15k - ₱25k",
+  "₱25k+",
 ];
 
-const LIVING_TYPES = [
-  "Studio Apartment",
-  "1BR Unit",
-  "2BR Unit",
-  "Bedspace",
-  "Co-Living",
+const LIVING_TYPES: string[] = [
+  ...new Set(
+    (Apartments as Array<{ unitType: string }>).map((a) => a.unitType)
+  ),
 ];
 
 /* ─── shared dropdown shadow ─────────────────────────────── */
@@ -157,11 +153,16 @@ function Dropdown({
 
 /* ─── SearchBar ──────────────────────────────────────────── */
 export default function SearchBar() {
-  const [location, setLocation] = useState("IT Park");
-  const [budget, setBudget] = useState("₱5k – ₱15k");
-  const [livingType, setLivingType] = useState("Studio Apartment");
+  const [location, setLocation] = useState("");
+  const [budget, setBudget] = useState(BUDGET_RANGES[0]);
+  const [livingType, setLivingType] = useState(LIVING_TYPES[0]);
   const [activeField, setActiveField] = useState<ActiveField>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const locationInputRef = useRef<HTMLInputElement>(null);
+
+  const locationSuggestions = location.trim() === ""
+    ? []
+    : LOCATIONS.filter((l) => l.toLowerCase().includes(location.toLowerCase())).slice(0, 5);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -192,7 +193,7 @@ export default function SearchBar() {
     setIsSearching(true);
     /* simulate async search – replace with real navigation/fetch */
     setTimeout(() => setIsSearching(false), 1200);
-    window.location.href = "/listings?" + new URLSearchParams({
+    window.location.href = "/apartments?" + new URLSearchParams({
       location,
       budget,
       livingType,
@@ -200,7 +201,6 @@ export default function SearchBar() {
   };
 
   /* icons */
-  const locIcon = <MapPin className="w-4 h-4" />;
   const budgetIcon = <Banknote className="w-[17px] h-[17px]" />;
   const typeIcon = <Building2 className="w-4 h-4" />;
 
@@ -223,23 +223,68 @@ export default function SearchBar() {
       >
         {/* Location */}
         <div className="relative">
-          <FieldButton
-            icon={locIcon}
-            label="Location / Landmark"
-            value={location}
-            active={activeField === "location"}
-            onClick={() => toggle("location")}
-            roundedClass="rounded-t-2xl"
-          />
-          {activeField === "location" && (
-            <Dropdown
-              heading="Popular Landmarks"
-              items={LOCATIONS}
-              selected={location}
-              icon={<MapPin className="w-3.5 h-3.5" />}
-              onSelect={(v) => { setLocation(v); setActiveField(null); }}
-              className="left-0 right-0 w-auto"
-            />
+          <div
+            className={[
+              "flex items-center gap-3 px-4 py-4 rounded-t-2xl transition-colors duration-150",
+              activeField === "location" ? "bg-blue-50/80" : "hover:bg-gray-50/70",
+            ].join(" ")}
+          >
+            <span
+              className={[
+                "w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-all duration-150",
+                activeField === "location"
+                  ? "bg-navy text-white shadow-md"
+                  : "bg-gray-100 text-gray-500",
+              ].join(" ")}
+            >
+              <MapPin className="w-4 h-4" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <span className="block text-[9px] font-black uppercase tracking-[0.18em] text-gray-400 leading-none mb-1">
+                Barangay / Landmark
+              </span>
+              <input
+                ref={locationInputRef}
+                type="text"
+                value={location}
+                onChange={(e) => { setLocation(e.target.value); setActiveField("location"); }}
+                onFocus={() => setActiveField("location")}
+                placeholder="e.g. IT Park, Ayala..."
+                className="block w-full text-[13px] font-semibold text-gray-900 bg-transparent outline-none placeholder:text-gray-400 placeholder:font-normal"
+              />
+            </div>
+          </div>
+          {activeField === "location" && locationSuggestions.length > 0 && (
+            <div
+              role="listbox"
+              aria-label="Location suggestions"
+              className="absolute top-full mt-2 left-0 right-0 bg-white/95 backdrop-blur-xl rounded-2xl border border-gray-100/80 p-1.5 z-50"
+              style={{ boxShadow: SHADOW }}
+            >
+              <p className="text-[9px] font-black uppercase tracking-[0.18em] text-gray-400 px-3 pt-2.5 pb-1.5">
+                Location
+              </p>
+              {locationSuggestions.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  role="option"
+                  aria-selected={location === item}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => { setLocation(item); setActiveField(null); }}
+                  className={[
+                    "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left",
+                    "text-[13px] font-medium transition-all duration-100 active:scale-[0.98]",
+                    location === item
+                      ? "bg-navy text-white shadow-sm"
+                      : "text-gray-800 hover:bg-gray-50 hover:text-gray-900",
+                  ].join(" ")}
+                >
+                  <MapPin className="w-3.5 h-3.5 shrink-0 opacity-60" />
+                  {item}
+                </button>
+              ))}
+            </div>
           )}
         </div>
 
@@ -256,7 +301,7 @@ export default function SearchBar() {
           />
           {activeField === "budget" && (
             <Dropdown
-              heading="Monthly Budget"
+              heading="Monthly Rent"
               items={BUDGET_RANGES}
               selected={budget}
               onSelect={(v) => { setBudget(v); setActiveField(null); }}
@@ -337,23 +382,67 @@ export default function SearchBar() {
       >
         {/* Location — 2× width */}
         <div className="relative flex-[2] min-w-0">
-          <FieldButton
-            icon={locIcon}
-            label="Location / Landmark"
-            value={location}
-            active={activeField === "location"}
-            onClick={() => toggle("location")}
-            roundedClass="rounded-l-2xl h-full"
-          />
-          {activeField === "location" && (
-            <Dropdown
-              heading="Popular Landmarks"
-              items={LOCATIONS}
-              selected={location}
-              icon={<MapPin className="w-3.5 h-3.5" />}
-              onSelect={(v) => { setLocation(v); setActiveField(null); }}
-              className="left-0 w-72"
-            />
+          <div
+            className={[
+              "flex items-center gap-3 px-3 py-4 h-full rounded-l-2xl transition-colors duration-150",
+              activeField === "location" ? "bg-blue-50/80" : "hover:bg-gray-50/70",
+            ].join(" ")}
+          >
+            <span
+              className={[
+                "w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-all duration-150",
+                activeField === "location"
+                  ? "bg-navy text-white shadow-md"
+                  : "bg-gray-100 text-gray-500",
+              ].join(" ")}
+            >
+              <MapPin className="w-4 h-4" />
+            </span>
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <span className="block text-[9px] font-black uppercase tracking-[0.18em] text-gray-400 leading-none mb-1">
+                Location / Landmark
+              </span>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => { setLocation(e.target.value); setActiveField("location"); }}
+                onFocus={() => setActiveField("location")}
+                placeholder="e.g. IT Park, Ayala..."
+                className="block w-full text-[13px] font-semibold text-gray-900 bg-transparent outline-none placeholder:text-gray-400 placeholder:font-normal truncate"
+              />
+            </div>
+          </div>
+          {activeField === "location" && locationSuggestions.length > 0 && (
+            <div
+              role="listbox"
+              aria-label="Location suggestions"
+              className="absolute top-full mt-2 left-0 w-72 bg-white/95 backdrop-blur-xl rounded-2xl border border-gray-100/80 p-1.5 z-50"
+              style={{ boxShadow: SHADOW }}
+            >
+              <p className="text-[9px] font-black uppercase tracking-[0.18em] text-gray-400 px-3 pt-2.5 pb-1.5">
+                Landmarks
+              </p>
+              {locationSuggestions.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  role="option"
+                  aria-selected={location === item}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => { setLocation(item); setActiveField(null); }}
+                  className={[
+                    "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left",
+                    "text-[13px] font-medium transition-all duration-100 active:scale-[0.98]",
+                    location === item
+                      ? "bg-navy text-white shadow-sm"
+                      : "text-gray-800 hover:bg-gray-50 hover:text-gray-900",
+                  ].join(" ")}
+                >
+                  <MapPin className="w-3.5 h-3.5 shrink-0 opacity-60" />
+                  {item}
+                </button>
+              ))}
+            </div>
           )}
         </div>
 
@@ -371,7 +460,7 @@ export default function SearchBar() {
           />
           {activeField === "budget" && (
             <Dropdown
-              heading="Monthly Budget"
+              heading="Monthly Rent"
               items={BUDGET_RANGES}
               selected={budget}
               onSelect={(v) => { setBudget(v); setActiveField(null); }}

@@ -23,7 +23,7 @@ export interface Listing {
   price: number;
   location: string;
   image: string;
-  /** 0 = Studio */
+  unitType: string;
   beds: number;
   baths: number;
   sqm: number;
@@ -39,14 +39,13 @@ const AMENITY_ICONS: Record<string, React.ReactNode> = {
 
 const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
   Studio: { bg: "#EEF0F8", text: "#1B2B6B" },
-  "1BR": { bg: "#e0e7ff", text: "#3730a3" },
-  "2BR": { bg: "#d1fae5", text: "#065f46" },
-  "3BR": { bg: "#fef3c7", text: "#92400e" },
+  "1 Bedroom": { bg: "#e0e7ff", text: "#3730a3" },
+  "2 Bedrooms": { bg: "#d1fae5", text: "#065f46" },
 };
 
 function getBedType(beds: number): string {
   if (beds === 0) return "Studio";
-  return `${beds}BR`;
+  return `${beds} Bedroom${beds > 1 ? "s" : ""}`;
 }
 
 export function ListingCard({
@@ -187,7 +186,7 @@ export function ListingCard({
 
       {/* CTA — solid, decisive */}
       <Link
-        href={`/listings/${listing.id}`}
+        href={`/apartments/${listing.id}`}
         className={[
           "mt-auto w-full rounded-xl bg-navy text-white py-2.5",
           "text-[12px] font-bold tracking-wide uppercase",

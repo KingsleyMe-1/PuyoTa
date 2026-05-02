@@ -2,17 +2,15 @@
 
 import { useState } from "react";
 import { MapPin, ChevronDown } from "lucide-react";
+import { Apartments } from "@/app/shared/mockData/APARTMENTS"
 
 const AMENITY_OPTIONS = ["WiFi", "Aircon", "Gym", "Pool"];
 
 const PROPERTY_TYPES = [
   "All Types",
-  "Studio",
-  "1BR",
-  "2BR",
-  "3BR+",
-  "Bedspace",
-  "Co-Living",
+    ...new Set(Apartments.map((apt) => {
+        return `${apt.unitType}`;
+    })),
 ];
 
 export interface Filters {
@@ -45,6 +43,7 @@ export function FilterSidebar({ onApply, initialLocation = "" }: FilterSidebarPr
 
   const handleApply = () => {
     onApply({ location, minPrice, maxPrice, propertyType, amenities });
+    console.log("Applied filters:", { location, minPrice, maxPrice, propertyType, amenities });
   };
 
   return (

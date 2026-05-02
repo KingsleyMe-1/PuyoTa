@@ -7,9 +7,9 @@ import { Menu, X } from "lucide-react";
 import Image from "next/image";
 
 const navLinks = [
-  { href: "/", label: "Home" },
+  { href: "/home", label: "Home" },
   { href: "/districts", label: "Districts" },
-  { href: "/listings", label: "Apartments" },
+  { href: "/apartments", label: "Apartments" },
 ];
 
 export default function Navbar() {
@@ -17,7 +17,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   function isActive(href: string) {
-    return href === "/" ? pathname === "/" : pathname.startsWith(href);
+    return pathname.startsWith(href);
   }
 
   return (
@@ -30,15 +30,15 @@ export default function Navbar() {
           aria-label="PuyoTa — Home"
         >
           <Image
-            src="/PuyoTa-Logo-Icon-Transparent.png"
+            src="/PuyoTa-Logo.png"
             alt=""
             aria-hidden="true"
-            width={30}
-            height={30}
-            className="object-contain"
+            width={40}
+            height={40}
+            className="object-contain hidden sm:block"
           />
-          <span className="text-[19px] font-bold -ml-1 text-navy">
-            uyoTa
+          <span className="text-[19px] font-bold ml-1 text-navy">
+            PuyoTa
           </span>
         </Link>
 

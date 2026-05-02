@@ -3,10 +3,8 @@ import { ArrowRight } from "lucide-react";
 
 const districts = [
   {
-    id: "it-park",
-    name: "IT Park",
-    count: "240+ Verified Listings",
-    
+    id: "cebu-it-park",
+    name: "Cebu IT Park",
     accent: "rgba(30,80,200,0.15)",
     large: true,
     image: "It-park.jpg",
@@ -14,26 +12,23 @@ const districts = [
   {
     id: "cebu-business-park",
     name: "Cebu Business Park",
-    count: "115+ Luxury Suites",
     accent: "rgba(60,120,220,0.15)",
     large: false,
     image: "Cebu-Business-Park.jpg",
   },
   {
-    id: "mactan-island",
-    name: "Mactan Island",
-    count: "",
+    id: "colon-street",
+    name: "Colon Street",
     accent: "rgba(20,160,160,0.15)",
     large: false,
-    image: "Mactan-Island.jpg",
+    image: "Colon.jpg",
   },
   {
-    id: "banawa",
-    name: "Banawa District",
-    count: "",
+    id: "paseo-arcenas",
+    name: "Paseo Arcenas",
     accent: "rgba(40,160,60,0.15)",
     large: false,
-    image: "Banawa.jpg",
+    image: "Paseo-Arcenas.jpg",
   },
 ];
 
@@ -45,7 +40,7 @@ interface DistrictCardProps {
 function DistrictCard({ district, className = "" }: DistrictCardProps) {
   return (
     <Link
-      href={`/listings?location=${encodeURIComponent(district.name)}`}
+      href={`/apartments?location=${encodeURIComponent(district.name)}`}
       className={`group relative rounded-2xl overflow-hidden block ${className}`}
       style={{ backgroundImage: `url(/${district.image})`, backgroundSize: "cover", backgroundPosition: "center" }}
     >
@@ -62,11 +57,6 @@ function DistrictCard({ district, className = "" }: DistrictCardProps) {
         <p className="text-white font-semibold text-lg leading-tight drop-shadow-md">
           {district.name}
         </p>
-        {district.count && (
-          <p className="text-white/80 text-sm mt-0.5 drop-shadow-md">
-            {district.count}
-          </p>
-        )}
       </div>
     </Link>
   );

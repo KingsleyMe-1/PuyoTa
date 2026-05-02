@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -7,10 +7,14 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
-  title: "PuyoTa — Find Your Home in Cebu",
-  description:
-    "Discover verified apartments, bedspaces, and co-living spaces near your workplace in Cebu City. No ghosting, no fake prices.",
+  title: "PuyoTa - Find Your Perfect Apartment",
+  description: "Find your ideal apartment with PuyoTa - your ultimate apartment search companion. Explore listings, discover neighborhoods, and connect with landlords effortlessly. Start your apartment hunt today!",
 };
 
 export default function RootLayout({
@@ -19,8 +23,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
 }

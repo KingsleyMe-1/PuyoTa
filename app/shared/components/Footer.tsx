@@ -22,7 +22,7 @@ export default function Footer() {
               PuyoTa
             </Link>
             <p className="text-xs text-gray-400 leading-relaxed max-w-xs">
-              © 2024 PuyoTa Cebu. All rights reserved.
+              © 2026 PuyoTa Cebu. All rights reserved.
             </p>
             <div className="flex items-center gap-3 mt-1">
               <a
