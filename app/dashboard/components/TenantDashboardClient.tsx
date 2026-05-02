@@ -271,7 +271,7 @@ export default function TenantDashboardClient({ profile }: { profile: Profile })
         {/* Browse CTA */}
         <div className="px-3 pb-3 pt-4">
           <Link
-            href="/listings"
+            href="/apartments"
             className="flex items-center justify-center gap-2 w-full bg-white text-[#1B2B6B] text-[12px] font-bold rounded-[10px] py-2.5 transition-all duration-200 hover:bg-white/92 active:scale-[0.98]"
           >
             <Home className="w-3.5 h-3.5" />

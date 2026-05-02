@@ -523,7 +523,7 @@ function EmptyState({
         </button>
       ) : (
         <Link
-          href="/listings"
+          href="/apartments"
           className="inline-flex items-center gap-1.5 px-5 py-2.5 text-white rounded-xl text-[12px] font-bold hover:opacity-90 transition-opacity duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1B2B6B] focus-visible:ring-offset-2"
           style={{ background: "#1B2B6B" }}
         >
