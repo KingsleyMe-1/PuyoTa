@@ -260,7 +260,7 @@ function StepPersonalInfo({
 
   return (
     <div className="w-full max-w-[480px] mx-auto px-4">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden ">
         {/* Card header */}
         <div className="px-7 sm:px-9 pt-8 pb-5">
           <div className="flex items-center justify-between mb-4">

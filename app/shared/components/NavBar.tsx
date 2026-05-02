@@ -12,7 +12,7 @@ const navLinks = [
   { href: "/apartments", label: "Apartments" },
 ];
 
-export default function Navbar() {
+export default function Navbar({ authentication }: { authentication: boolean }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -43,31 +43,36 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Nav Links */}
-        <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={[
-                "text-sm font-medium pb-1 border-b-2 transition-colors",
-                isActive(link.href)
-                  ? "text-gray-900 border-navy"
-                  : "text-gray-500 hover:text-gray-900 border-transparent",
-              ].join(" ")}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
+        {!authentication &&
+          <div className="hidden md:flex items-center gap-8">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={[
+                  "text-sm font-medium pb-1 border-b-2 transition-colors",
+                  isActive(link.href)
+                    ? "text-gray-900 border-navy"
+                    : "text-gray-500 hover:text-gray-900 border-transparent",
+                ].join(" ")}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        }
 
         {/* Right — Desktop Sign In + Mobile Hamburger */}
         <div className="flex items-center gap-3 shrink-0">
-          <Link
-            href="/sign-in"
-            className="hidden md:inline-flex text-sm font-medium text-gray-700 hover:text-navy transition-colors"
-          >
-            Sign In
-          </Link>
+          {
+            !isActive("/sign-in") &&
+            <Link
+              href="/sign-in"
+              className="hidden md:inline-flex text-sm font-medium text-gray-700 hover:text-navy transition-colors"
+            >
+              Sign In
+            </Link>
+          }
 
           <button
             aria-label={menuOpen ? "Close menu" : "Open menu"}
