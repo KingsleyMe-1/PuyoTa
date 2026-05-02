@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Home,
   Building2,
@@ -15,7 +16,9 @@ import {
   Info,
   ShieldCheck,
   Loader2,
+  AlertCircle,
 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 type Role = "tenant" | "landlord" | null;
 type Step = 1 | 2 | 3;
@@ -248,13 +251,19 @@ function StepPersonalInfo({
   onNext: () => void;
 }) {
   const [showPw, setShowPw] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const strength = passwordStrength(data.password);
 
-  async function handleNext() {
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 600));
-    setLoading(false);
+  function handleNext() {
+    if (!data.fullName.trim() || !data.email.trim() || !data.password.trim()) {
+      setValidationError("Please fill in all required fields.");
+      return;
+    }
+    if (data.password.length < 8) {
+      setValidationError("Password must be at least 8 characters.");
+      return;
+    }
+    setValidationError(null);
     onNext();
   }
 
@@ -439,21 +448,28 @@ function StepPersonalInfo({
             <button
               type="button"
               onClick={onBack}
-              disabled={loading}
-              className="flex-1 border border-gray-200 rounded-xl py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 active:scale-[0.99] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/20 disabled:opacity-60"
+              className="flex-1 border border-gray-200 rounded-xl py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 active:scale-[0.99] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/20"
             >
               Back
             </button>
             <button
               type="button"
               onClick={handleNext}
-              disabled={loading}
-              className="flex-[2] bg-navy text-white font-semibold rounded-xl py-3 text-sm hover:bg-navy-dark active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2 disabled:opacity-70"
+              className="flex-[2] bg-navy text-white font-semibold rounded-xl py-3 text-sm hover:bg-navy-dark active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
             >
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
               Save and Continue
             </button>
           </div>
+
+          {validationError && (
+            <div
+              role="alert"
+              className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            >
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
+              <span>{validationError}</span>
+            </div>
+          )}
 
           <p className="text-center text-xs text-gray-400">
             Your data is protected by high-level encryption.{" "}
@@ -493,11 +509,12 @@ function StepVerification({
   onFileChange: (f: File | null) => void;
   onToggleLocation: (loc: string) => void;
   onBack: () => void;
-  onComplete: () => void;
+  onComplete: () => Promise<void>;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
@@ -508,9 +525,14 @@ function StepVerification({
 
   async function handleComplete() {
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1400));
-    setLoading(false);
-    onComplete();
+    setError(null);
+    try {
+      await onComplete();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setLoading(false);
+    }
+    // On success, onComplete redirects — no need to stop loading
   }
 
   return (
@@ -690,6 +712,15 @@ function StepVerification({
 
             {/* Complete */}
             <div className="flex flex-col gap-3 pt-1">
+              {error && (
+                <div
+                  role="alert"
+                  className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                >
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
+                  <span>{error}</span>
+                </div>
+              )}
               <button
                 type="button"
                 onClick={handleComplete}
@@ -721,6 +752,7 @@ function StepVerification({
 // Main exported component
 // ─────────────────────────────────────────────────────────────
 export function SignUpFlow() {
+  const router = useRouter();
   const [step, setStep] = useState<Step>(1);
   const [form, setForm] = useState<FormState>(INITIAL);
 
@@ -735,6 +767,49 @@ export function SignUpFlow() {
         ? prev.locations.filter((l) => l !== loc)
         : [...prev.locations, loc],
     }));
+  }
+
+  async function handleSignUp(): Promise<void> {
+    const supabase = createClient();
+
+    // 1. Create the auth user
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.password,
+      options: {
+        data: { full_name: form.fullName },
+      },
+    });
+
+    if (signUpError) throw new Error(signUpError.message);
+
+    const user = signUpData.user;
+    if (!user) throw new Error("Sign-up succeeded but no user was returned.");
+
+    // 2. Insert the profile row (safe: auth.uid() is set by Supabase JWT)
+    const { error: profileError } = await supabase.from("profiles").insert({
+      id: user.id,
+      role: form.role,
+      full_name: form.fullName,
+      phone: form.phone ? `+63${form.phone.replace(/\s/g, "")}` : null,
+      location_preferences: form.locations,
+    });
+
+    if (profileError) throw new Error(profileError.message);
+
+    // 3. Upload government ID if provided
+    if (form.idFile) {
+      const ext = form.idFile.name.split(".").pop();
+      const path = `${user.id}/government-id.${ext}`;
+      const { error: storageError } = await supabase.storage
+        .from("identity-documents")
+        .upload(path, form.idFile, { upsert: true });
+      // Non-fatal — user can re-upload later; don't block account creation
+      if (storageError) console.warn("ID upload failed:", storageError.message);
+    }
+
+    router.push("/dashboard");
+    router.refresh();
   }
 
   return (
@@ -765,9 +840,7 @@ export function SignUpFlow() {
           onFileChange={(f) => updateField("idFile", f)}
           onToggleLocation={toggleLocation}
           onBack={() => setStep(2)}
-          onComplete={() => {
-            /* TODO: submit form data to backend */
-          }}
+          onComplete={handleSignUp}
         />
       )}
     </>

@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 function GoogleIcon() {
   return (
@@ -33,26 +35,48 @@ function GoogleIcon() {
 }
 
 export function SignInForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsLoading(true);
-    /* TODO: wire up auth */
-    await new Promise((r) => setTimeout(r, 1200));
-    setIsLoading(false);
+    setError(null);
+    const supabase = createClient();
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (authError) {
+      setError(authError.message);
+      setIsLoading(false);
+      return;
+    }
+    router.push("/dashboard");
+    router.refresh();
   }
 
   async function handleGoogle() {
     setGoogleLoading(true);
-    /* TODO: wire up Google OAuth */
-    await new Promise((r) => setTimeout(r, 1200));
-    setGoogleLoading(false);
+    setError(null);
+    const supabase = createClient();
+    const { error: authError } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (authError) {
+      setError(authError.message);
+      setGoogleLoading(false);
+    }
+    // On success the browser navigates away — no need to setGoogleLoading(false)
   }
 
   return (
@@ -156,6 +180,16 @@ export function SignInForm() {
             Keep me logged in for 30 days
           </span>
         </label>
+
+        {error && (
+          <div
+            role="alert"
+            className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          >
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
+            <span>{error}</span>
+          </div>
+        )}
 
         <button
           type="submit"

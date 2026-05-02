@@ -1,8 +1,8 @@
 export const Districts = [
   {
     id: "it-park",
-    name: "IT Park",
-    locationParam: "IT Park",
+    name: "Cebu IT Park",
+    locationParam: "Cebu IT Park",
     image: "/It-park.jpg",
     tags: ["Ayala Central Bloc", "Tech Hub"],
     stats: [
@@ -12,8 +12,8 @@ export const Districts = [
   },
   {
     id: "business-park-banilad",
-    name: "Business Park / Banilad",
-    locationParam: "Banilad",
+    name: "Cebu Business Park",
+    locationParam: "Cebu Business Park",
     image: "/Cebu-Business-Park.jpg",
     tags: ["Ayala Center", "Business District"],
     stats: [

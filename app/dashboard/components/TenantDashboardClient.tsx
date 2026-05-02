@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import SavedListingsView from "./SavedListingsView";
 import DashboardListingDetail from "./DashboardListingDetail";
 import MessagesView from "./MessagesView";
@@ -25,6 +27,14 @@ import {
 
 
 // ── Types ─────────────────────────────────────────────────────────────────────
+
+interface Profile {
+  fullName: string | null;
+  role: "tenant" | "landlord";
+  idVerified: boolean;
+  avatarUrl: string | null;
+  email: string;
+}
 
 interface SavedListing {
   id: number;
@@ -109,10 +119,27 @@ const NAV_ITEMS = [
 
 // ── Root Component ─────────────────────────────────────────────────────────────
 
-export default function TenantDashboardClient() {
+export default function TenantDashboardClient({ profile }: { profile: Profile }) {
+  const router = useRouter();
   const [activeNav, setActiveNav] = useState<string>("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [detailListingId, setDetailListingId] = useState<number | null>(null);
+
+  const firstName = profile.fullName?.split(" ")[0] ?? profile.email.split("@")[0];
+  const displayName = profile.fullName ?? profile.email;
+  const initials = (profile.fullName ?? profile.email)
+    .split(" ")
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? "")
+    .join("");
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    // scope: 'global' invalidates the token server-side so it cannot be reused
+    await supabase.auth.signOut({ scope: "global" });
+    router.push("/home");
+    router.refresh();
+  }
 
   const handleNavClick = (id: string) => {
     setActiveNav(id);
@@ -278,30 +305,54 @@ export default function TenantDashboardClient() {
             className="rounded-xl p-2.5 flex items-center gap-2.5"
             style={{ background: "rgba(0,0,0,0.18)" }}
           >
+            {/* Avatar — Google photo or initials fallback */}
             <div className="relative w-8 h-8 rounded-full overflow-hidden shrink-0 ring-[1.5px] ring-white/20">
-              <Image
-                src="https://picsum.photos/seed/juandc/80/80"
-                alt="Juan Dela Cruz"
-                fill
-                className="object-cover"
-                sizes="32px"
-              />
+              {profile.avatarUrl ? (
+                <Image
+                  src={profile.avatarUrl}
+                  alt={displayName}
+                  fill
+                  className="object-cover"
+                  sizes="32px"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div
+                  className="w-full h-full flex items-center justify-center text-[10px] font-bold text-white"
+                  style={{ background: "rgba(255,255,255,0.18)" }}
+                  aria-hidden="true"
+                >
+                  {initials}
+                </div>
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-white text-[11.5px] font-semibold truncate leading-tight">
-                Juan Dela Cruz
+                {displayName}
               </p>
               <div className="flex items-center gap-1 mt-[2px]">
-                <BadgeCheck className="w-2.5 h-2.5 text-emerald-400 shrink-0" />
-                <span
-                  className="text-[8.5px] font-bold tracking-[0.14em] uppercase"
-                  style={{ color: "#34d399" }}
-                >
-                  Verified Tenant
-                </span>
+                {profile.idVerified ? (
+                  <>
+                    <BadgeCheck className="w-2.5 h-2.5 text-emerald-400 shrink-0" />
+                    <span
+                      className="text-[8.5px] font-bold tracking-[0.14em] uppercase"
+                      style={{ color: "#34d399" }}
+                    >
+                      Verified {profile.role === "landlord" ? "Landlord" : "Tenant"}
+                    </span>
+                  </>
+                ) : (
+                  <span
+                    className="text-[8.5px] font-medium tracking-[0.12em] uppercase"
+                    style={{ color: "rgba(255,255,255,0.35)" }}
+                  >
+                    {profile.role === "landlord" ? "Landlord" : "Tenant"}
+                  </span>
+                )}
               </div>
             </div>
             <button
+              onClick={handleSignOut}
               aria-label="Sign out"
               className="p-1.5 rounded-lg hover:bg-white/10 transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20"
               style={{ color: "rgba(255,255,255,0.3)" }}
@@ -360,7 +411,7 @@ export default function TenantDashboardClient() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h1 className="text-[22px] font-black text-gray-900 leading-tight tracking-tight">
-                  Welcome back, Juan.
+                  Welcome back, {firstName}.
                 </h1>
                 <p className="text-[12.5px] text-gray-500 mt-0.5">
                   Here&rsquo;s what&rsquo;s happening with your search today.
