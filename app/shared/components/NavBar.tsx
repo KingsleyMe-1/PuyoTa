@@ -12,7 +12,7 @@ const navLinks = [
   { href: "/apartments", label: "Apartments" },
 ];
 
-export default function Navbar({ authentication }: { authentication: boolean }) {
+export default function Navbar({ authentication = false }: { authentication?: boolean }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
