@@ -943,7 +943,7 @@ function MapPlaceholder({ location }: { location: string }) {
 
 // ── Landlord Card ──────────────────────────────────────────────────────────────
 
-function LandlordCard({ landlord }: { landlord: ListingDetail["landlord"] }) {
+function LandlordCard({ landlord }: { landlord: NonNullable<ListingDetail["landlord"]> }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       <div className="p-5 flex flex-col gap-4">

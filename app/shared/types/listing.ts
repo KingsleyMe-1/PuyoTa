@@ -3,12 +3,27 @@ export interface Listing {
   title: string;
   price: number;
   location: string;
+  district?: string;
   image: string;
   unitType: string;
   beds: number;
   baths: number;
   sqm: number;
   amenities: string[];
+  landlord?: {
+    name: string;
+    title: string;
+    rating: number;
+    reviewCount: number;
+    responseTime: string;
+    memberSince: string;
+    avatar: string;
+  } | null;
+  furnishing?: string;
+  description?: string;
+  landmarks?: string[];
+  tags?: string[];
+  detailedImages?: string[];
 }
 
 export interface ListingDetail {
