@@ -20,7 +20,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 
 type Role = "tenant" | "landlord" | null;
-type Step = 1 | 2 | 3;
+type Step = 1 | 2 | 3 | "email-sent";
 
 interface FormState {
   role: Role;
@@ -66,7 +66,7 @@ function StepBars({
   current,
   compact = false,
 }: {
-  current: Step;
+  current: 1 | 2 | 3;
   compact?: boolean;
 }) {
   return (
@@ -748,7 +748,88 @@ function StepVerification({
 }
 
 // ─────────────────────────────────────────────────────────────
-// Main exported component
+// Email-sent confirmation screen
+// ─────────────────────────────────────────────────────────────
+function StepEmailSent({ email }: { email: string }) {
+  const [resendStatus, setResendStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [cooldown, setCooldown] = useState(0);
+
+  async function handleResend() {
+    setResendStatus("sending");
+    const supabase = createClient();
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+    });
+    if (error) {
+      setResendStatus("error");
+    } else {
+      setResendStatus("sent");
+      setCooldown(60);
+      const interval = setInterval(() => {
+        setCooldown((c) => {
+          if (c <= 1) { clearInterval(interval); return 0; }
+          return c - 1;
+        });
+      }, 1000);
+    }
+  }
+
+  return (
+    <div className="w-full max-w-[480px] mx-auto px-4 flex flex-col items-center text-center gap-6">
+      <div className="w-16 h-16 bg-navy/10 rounded-full flex items-center justify-center">
+        <Mail className="w-8 h-8 text-navy" aria-hidden="true" />
+      </div>
+      <div className="flex flex-col gap-2">
+        <h1 className="text-xl font-semibold text-gray-900 tracking-tight">
+          Check your email
+        </h1>
+        <p className="text-sm text-gray-500 leading-relaxed">
+          We sent a confirmation link to{" "}
+          <span className="font-semibold text-gray-700">{email}</span>.
+          Click the link to verify your account and access your dashboard.
+        </p>
+      </div>
+      <div className="bg-blue-50/70 border border-blue-100 rounded-xl p-4 w-full text-left flex gap-3">
+        <Info className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" aria-hidden="true" />
+        <p className="text-[12px] text-gray-600 leading-relaxed">
+          Check your spam or junk folder. Confirmation emails can sometimes
+          land there.
+        </p>
+      </div>
+
+      {resendStatus === "sent" && (
+        <div role="status" className="w-full bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-sm text-emerald-700 text-center">
+          Email resent!
+        </div>
+      )}
+      {resendStatus === "error" && (
+        <div role="alert" className="w-full bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700 text-center">
+          Failed to resend. Please wait a moment and try again.
+        </div>
+      )}
+
+      <div className="flex flex-col gap-3 w-full max-w-[300px]">
+        <button
+          type="button"
+          onClick={handleResend}
+          disabled={resendStatus === "sending" || cooldown > 0}
+          className="w-full border border-navy text-navy font-semibold rounded-xl py-3.5 text-sm hover:bg-navy/5 active:scale-[0.99] transition-all duration-150 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/30 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {resendStatus === "sending" && <Loader2 className="w-4 h-4 animate-spin" />}
+          {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend confirmation email"}
+        </button>
+        <Link
+          href="/sign-in"
+          className="w-full bg-navy text-white font-semibold rounded-xl py-3.5 text-sm hover:bg-navy-dark active:scale-[0.99] transition-all duration-150 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
+        >
+          Back to Sign In
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────
 export function SignUpFlow() {
   const [step, setStep] = useState<Step>(1);
@@ -793,11 +874,10 @@ export function SignUpFlow() {
     const user = signUpData.user;
     if (!user) throw new Error("Sign-up succeeded but no user was returned.");
 
-    // 2. When autoconfirm is ON, the session is available immediately.
-    //    Upsert the profile row with the form values.
-    //    If the DB trigger already ran (email-confirmation scenario),
-    //    onConflict: 'id' turns this into an update — a safe no-op.
     if (signUpData.session) {
+      // ── Autoconfirm ON: session is available immediately ──────────────────
+      // 2a. Upsert the profile row. If the DB trigger already ran, onConflict
+      //     turns this into an UPDATE — idempotent and safe.
       const { error: profileError } = await supabase.from("profiles").upsert(
         {
           id: user.id,
@@ -809,23 +889,27 @@ export function SignUpFlow() {
         { onConflict: "id" }
       );
       if (profileError) throw new Error(profileError.message);
-    }
 
-    // 3. Upload government ID if provided (non-fatal — user can re-upload later)
-    if (form.idFile) {
-      const ext = form.idFile.name.split(".").pop();
-      const path = `${user.id}/government-id.${ext}`;
-      const { error: storageError } = await supabase.storage
-        .from("identity-documents")
-        .upload(path, form.idFile, { upsert: true });
-      // Non-fatal — user can re-upload later; don't block account creation
-      if (storageError) console.warn("ID upload failed:", storageError.message);
-    }
+      // 2b. Upload government ID if provided (non-fatal — user can re-upload later)
+      if (form.idFile) {
+        const ext = form.idFile.name.split(".").pop();
+        const path = `${user.id}/government-id.${ext}`;
+        const { error: storageError } = await supabase.storage
+          .from("identity-documents")
+          .upload(path, form.idFile, { upsert: true });
+        if (storageError) console.warn("ID upload failed:", storageError.message);
+      }
 
-    // Hard navigation ensures the session cookie is sent with the request
-    // to /dashboard. router.push() is too fast — the cookie isn't flushed
-    // yet and the middleware would see no session and redirect to /home.
-    window.location.href = "/dashboard";
+      // Hard navigation ensures the session cookie is flushed before the
+      // /dashboard request hits the proxy — router.push() can race the cookie.
+      window.location.href = "/dashboard";
+    } else {
+      // ── Email confirmation required ────────────────────────────────────────
+      // The DB trigger `handle_new_user` will create the profile row when the
+      // auth.users INSERT fires (SECURITY DEFINER, no session needed).
+      // Show a "check your email" screen so the user knows what to do next.
+      setStep("email-sent");
+    }
   }
 
   return (
@@ -859,6 +943,8 @@ export function SignUpFlow() {
           onComplete={handleSignUp}
         />
       )}
+
+      {step === "email-sent" && <StepEmailSent email={form.email} />}
     </>
   );
 }
