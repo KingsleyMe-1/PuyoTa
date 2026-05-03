@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import type { Profile } from "@/app/shared/types";
 
 import {
   LayoutDashboard,
@@ -17,37 +18,38 @@ import {
   BadgeCheck,
   X,
   Home,
+  Menu,
 } from "lucide-react";
 
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// ── Root Component ─────────────────────────────────────────────────────────────
 
-interface Profile {
-  fullName: string | null;
-  role: "tenant" | "landlord";
-  idVerified: boolean;
-  avatarUrl: string | null;
-  email: string;
-}
+function SidebarNavigationInner({
+  children,
+  profile,
+}: {
+  children?: React.ReactNode;
+  profile?: Profile;
+}) {
 
-
-
-const NAV_ITEMS = [
+  const NAV_ITEMS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard, badge: undefined as number | undefined },
-  { id: "saved", label: "Saved Listings", icon: Bookmark, badge: undefined as number | undefined },
+  { id: profile?.role === "landlord" ? "managed" : "saved", label: profile?.role === "landlord" ? "Managed Listings" : "Saved Listings", icon: Bookmark, badge: undefined as number | undefined },
   { id: "messages", label: "Messages", icon: MessageSquare, badge: 3 },
   { id: "verification", label: "Verification", icon: ShieldCheck, badge: undefined as number | undefined },
 ] as const;
 
-// ── Root Component ─────────────────────────────────────────────────────────────
-
-export default function SidebarNavigation() {
   const router = useRouter();
-  const [activeNav, setActiveNav] = useState<string>("overview");
+  const searchParams = useSearchParams();
+  const activeNav = searchParams.get("view") ?? "overview";
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const displayName = "User";
-  const initials = "U";
+  const displayName = profile?.fullName ?? profile?.email ?? "User";
+  const initials = (profile?.fullName ?? profile?.email ?? "U")
+    .split(" ")
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? "")
+    .join("");
 
   async function handleSignOut() {
     const supabase = createClient();
@@ -58,7 +60,7 @@ export default function SidebarNavigation() {
   }
 
   const handleNavClick = (id: string) => {
-    setActiveNav(id);
+    router.push(`?view=${id}`);
     setSidebarOpen(false);
   };
 
@@ -123,7 +125,7 @@ export default function SidebarNavigation() {
                 className="text-[8.5px] font-bold tracking-[0.28em] uppercase"
                 style={{ color: "rgba(255,255,255,0.3)" }}
               >
-                Tenant Dashboard
+                {profile?.role === "landlord" ? "Landlord" : "Tenant"} Dashboard
               </p>
             </span>
           </div>
@@ -189,7 +191,7 @@ export default function SidebarNavigation() {
         {/* Browse CTA */}
         <div className="px-3 pb-3 pt-4">
           <Link
-            href="/apartments"
+            href="?view=browse-apartments"
             className="flex items-center justify-center gap-2 w-full bg-white text-[#1B2B6B] text-[12px] font-bold rounded-[10px] py-2.5 transition-all duration-200 hover:bg-white/92 active:scale-[0.98]"
           >
             <Home className="w-3.5 h-3.5" />
@@ -225,7 +227,16 @@ export default function SidebarNavigation() {
           >
             {/* Avatar — Google photo or initials fallback */}
             <div className="relative w-8 h-8 rounded-full overflow-hidden shrink-0 ring-[1.5px] ring-white/20">
-  
+              {profile?.avatarUrl ? (
+                <Image
+                  src={profile.avatarUrl}
+                  alt={displayName}
+                  fill
+                  className="object-cover"
+                  sizes="32px"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
                 <div
                   className="w-full h-full flex items-center justify-center text-[10px] font-bold text-white"
                   style={{ background: "rgba(255,255,255,0.18)" }}
@@ -233,21 +244,31 @@ export default function SidebarNavigation() {
                 >
                   {initials}
                 </div>
-        
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-white text-[11.5px] font-semibold truncate leading-tight">
                 {displayName}
               </p>
               <div className="flex items-center gap-1 mt-[2px]">
-                
+                {profile?.idVerified ? (
+                  <>
+                    <BadgeCheck className="w-2.5 h-2.5 text-emerald-400 shrink-0" />
+                    <span
+                      className="text-[8.5px] font-bold tracking-[0.14em] uppercase"
+                      style={{ color: "#34d399" }}
+                    >
+                      Verified {profile.role === "landlord" ? "Landlord" : "Tenant"}
+                    </span>
+                  </>
+                ) : (
                   <span
                     className="text-[8.5px] font-medium tracking-[0.12em] uppercase"
                     style={{ color: "rgba(255,255,255,0.35)" }}
                   >
-                    {/* {profile.role === "landlord" ? "Landlord" : "Tenant"} */}
-                    Tenant (Unverified)
+                    {profile?.role === "landlord" ? "Landlord" : "Tenant"}
                   </span>
+                )}
               </div>
             </div>
             <button
@@ -263,8 +284,43 @@ export default function SidebarNavigation() {
       </aside>
 
       {/* ── MAIN CONTENT ────────────────────────────────── */}
-    
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Mobile top bar */}
+        <header
+          className="lg:hidden px-4 pt-4 pb-3 flex items-center gap-3 shrink-0"
+          style={{ background: "#EAECF5" }}
+        >
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-gray-200/70 text-gray-500 hover:text-gray-800 transition-all duration-200 cursor-pointer shrink-0 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1B2B6B]/30"
+            aria-label="Open navigation menu"
+            aria-expanded={sidebarOpen}
+            aria-controls="dashboard-sidebar"
+          >
+            <Menu className="w-4 h-4" />
+          </button>
+        </header>
+
+        {/* Page content */}
+        <main
+          id="main-content"
+          className="flex-1 min-h-0"
+        >
+          {children}
+        </main>
+      </div>
     </div>
+  );
+}
+
+export default function SidebarNavigation(props: {
+  children?: React.ReactNode;
+  profile?: Profile;
+}) {
+  return (
+    <Suspense fallback={null}>
+      <SidebarNavigationInner {...props} />
+    </Suspense>
   );
 }
 

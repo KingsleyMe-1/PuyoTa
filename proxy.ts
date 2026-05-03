@@ -30,10 +30,17 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect /dashboard — unauthenticated users are sent to the homepage.
+  // Protect authenticated routes — unauthenticated users are sent to the homepage.
   const { pathname } = request.nextUrl;
-  const isDashboard = pathname === "/dashboard" || pathname.startsWith("/dashboard/");
-  if (isDashboard && !user) {
+  const isProtected =
+    pathname === "/dashboard" ||
+    pathname.startsWith("/dashboard/") ||
+    pathname === "/tenant" ||
+    pathname.startsWith("/tenant/") ||
+    pathname === "/landlord" ||
+    pathname.startsWith("/landlord/");
+
+  if (isProtected && !user) {
     const homeUrl = request.nextUrl.clone();
     homeUrl.pathname = "/home";
     homeUrl.search = "";

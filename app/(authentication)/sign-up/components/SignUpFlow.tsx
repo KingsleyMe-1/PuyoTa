@@ -775,6 +775,7 @@ function StepEmailSent({ email }: { email: string }) {
     }
   }
 
+  console.log("Email sent to:", email); // For development/debugging purposes
   return (
     <div className="w-full max-w-[480px] mx-auto px-4 flex flex-col items-center text-center gap-6">
       <div className="w-16 h-16 bg-navy/10 rounded-full flex items-center justify-center">

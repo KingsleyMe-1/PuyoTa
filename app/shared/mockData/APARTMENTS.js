@@ -36,7 +36,8 @@ export const Apartments = [
       responseTime: "Under 1 hour",
       memberSince: "May 2021",
       avatar: "https://picsum.photos/seed/landlord-rafael/200/200",
-    }
+    },
+    savedDaysAgo: 2,
   },
   {
     id: 2,
@@ -75,7 +76,9 @@ export const Apartments = [
       responseTime: "Under 1 hour",
       memberSince: "May 2021",
       avatar: "https://picsum.photos/seed/landlord-rafael/200/200",
-    }
+    },
+        savedDaysAgo: 2,
+
   },
   {
     id: 3,
@@ -103,7 +106,17 @@ export const Apartments = [
       "https://picsum.photos/seed/itpark-studio-bed/600/400",
       "https://picsum.photos/seed/itpark-studio-bath/600/400",
       "https://picsum.photos/seed/itpark-studio-pool/600/400",
-    ]
+    ],
+    landlord: {
+      name: "Engr. Rafael Santos",
+      title: "Verified Landlord",
+      rating: 4.9,
+      reviewCount: 47,
+      responseTime: "Under 1 hour",
+      memberSince: "May 2021",
+      avatar: "https://picsum.photos/seed/landlord-rafael/200/200",
+    },
+    savedDaysAgo: 2,
   },
   {
     id: 4,
@@ -134,6 +147,7 @@ export const Apartments = [
       "https://picsum.photos/seed/cbp-suite-bath/600/400",
       "https://picsum.photos/seed/cbp-suite-pool/600/400",
     ],
+    savedDaysAgo: 2,
     landlord: {
       name: "Engr. Rafael Santos",
       title: "Verified Landlord",
@@ -181,7 +195,8 @@ export const Apartments = [
       responseTime: "Under 1 hour",
       memberSince: "May 2021",
       avatar: "https://picsum.photos/seed/landlord-rafael/200/200",
-    }
+    },
+    savedDaysAgo: 2,
   },
   {
     id: 6,
@@ -220,7 +235,8 @@ export const Apartments = [
       responseTime: "Under 1 hour",
       memberSince: "May 2021",
       avatar: "https://picsum.photos/seed/landlord-rafael/200/200",
-    }
+    },
+    savedDaysAgo: 2,
   },
   {
     id: 7,
@@ -257,7 +273,8 @@ export const Apartments = [
       responseTime: "Under 1 hour",
       memberSince: "May 2021",
       avatar: "https://picsum.photos/seed/landlord-rafael/200/200",
-    }
+    },
+    savedDaysAgo: 2,
   },
   {
     id: 8,
@@ -293,7 +310,8 @@ export const Apartments = [
       responseTime: "Under 1 hour",
       memberSince: "May 2021",
       avatar: "https://picsum.photos/seed/landlord-rafael/200/200",
-    }
+    },
+    savedDaysAgo: 2,
   },
   {
     id: 9,
@@ -330,7 +348,8 @@ export const Apartments = [
       responseTime: "Under 1 hour",
       memberSince: "May 2021",
       avatar: "https://picsum.photos/seed/landlord-rafael/200/200",
-    }
+    },
+    savedDaysAgo: 2,
   },
   {
     id: 10,
@@ -369,7 +388,8 @@ export const Apartments = [
       responseTime: "Under 1 hour",
       memberSince: "May 2021",
       avatar: "https://picsum.photos/seed/landlord-rafael/200/200",
-    }
+    },
+    savedDaysAgo: 2,
   },
   {
     id: 11,
@@ -408,7 +428,8 @@ export const Apartments = [
       responseTime: "Under 1 hour",
       memberSince: "May 2021",
       avatar: "https://picsum.photos/seed/landlord-rafael/200/200",
-    }
+    },
+    savedDaysAgo: 2,
   },
   {
     id: 12,
@@ -447,7 +468,8 @@ export const Apartments = [
       responseTime: "Under 1 hour",
       memberSince: "May 2021",
       avatar: "https://picsum.photos/seed/landlord-rafael/200/200",
-    }
+    },
+    savedDaysAgo: 2,
   },
 ];
 

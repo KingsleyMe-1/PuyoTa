@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -26,134 +27,41 @@ import {
   X,
 } from "lucide-react";
 import type { SavedListing } from "@/app/shared/types";
+import { Apartments } from "@/app/shared/mockData/APARTMENTS";
 
-// ── Mock Data ──────────────────────────────────────────────────────────────────
+// Normalise icon key casing so it matches AMENITY_META ("Wifi" → "WiFi")
+const ICON_NORMALIZE: Record<string, string> = { Wifi: "WiFi" };
 
-const MOCK_SAVED: SavedListing[] = [
-  {
-    id: 1,
-    title: "Skyrise 3 Studio Unit",
-    price: 25000,
-    location: "200m from IT Park, Cebu City",
-    district: "IT Park",
-    image: "https://picsum.photos/seed/sky3/600/400",
-    type: "Studio",
-    beds: 0,
-    baths: 1,
-    sqm: 28,
-    amenities: ["WiFi", "Aircon", "Gym", "Pool"],
-    savedDaysAgo: 2,
-    landlord: "Maria Santos",
-  },
-  {
-    id: 2,
-    title: "Mivesa Garden Residences",
-    price: 18500,
-    location: "Lahug, Cebu City",
-    district: "Lahug",
-    image: "https://picsum.photos/seed/mivesa/600/400",
-    type: "1BR",
-    beds: 1,
-    baths: 1,
-    sqm: 42,
-    amenities: ["WiFi", "Pool"],
-    savedDaysAgo: 5,
-    landlord: "Robert Lim",
-    priceChange: { direction: "down", amount: 1500 },
-  },
-  {
-    id: 3,
-    title: "Avida Towers Riala",
-    price: 32000,
-    location: "IT Park, Lahug, Cebu City",
-    district: "IT Park",
-    image: "https://picsum.photos/seed/avida/600/400",
-    type: "1BR",
-    beds: 1,
-    baths: 1,
-    sqm: 48,
-    amenities: ["WiFi", "Aircon", "Gym"],
-    savedDaysAgo: 7,
-    landlord: "Ana Reyes",
-  },
-  {
-    id: 4,
-    title: "Cebu Business Park Bedspace",
-    price: 5500,
-    location: "Cebu Business Park, Cebu City",
-    district: "CBP",
-    image: "https://picsum.photos/seed/cbpbed/600/400",
-    type: "Bedspace",
-    beds: 0,
-    baths: 1,
-    sqm: 12,
-    amenities: ["WiFi", "Aircon"],
-    savedDaysAgo: 10,
-    landlord: "Jun Villanueva",
-    priceChange: { direction: "up", amount: 500 },
-  },
-  {
-    id: 5,
-    title: "The Courtyard Residences",
-    price: 42000,
-    location: "Banilad, Cebu City",
-    district: "Banilad",
-    image: "https://picsum.photos/seed/courtyard/600/400",
-    type: "2BR",
-    beds: 2,
-    baths: 2,
-    sqm: 72,
-    amenities: ["WiFi", "Aircon", "Gym", "Pool"],
-    savedDaysAgo: 12,
-    landlord: "Grace Tan",
-  },
-  {
-    id: 6,
-    title: "Marco Polo Residences Studio",
-    price: 22000,
-    location: "Banilad Road, Cebu City",
-    district: "Banilad",
-    image: "https://picsum.photos/seed/marcopolo/600/400",
-    type: "Studio",
-    beds: 0,
-    baths: 1,
-    sqm: 30,
-    amenities: ["WiFi", "Aircon", "Pool"],
-    savedDaysAgo: 14,
-    landlord: "Carlo Reyes",
-    priceChange: { direction: "down", amount: 2000 },
-  },
-  {
-    id: 7,
-    title: "Baseline Premiere Residences",
-    price: 28000,
-    location: "Escario Street, Lahug, Cebu City",
-    district: "Lahug",
-    image: "https://picsum.photos/seed/baseline/600/400",
-    type: "1BR",
-    beds: 1,
-    baths: 1,
-    sqm: 38,
-    amenities: ["WiFi", "Aircon", "Gym"],
-    savedDaysAgo: 18,
-    landlord: "Pia Gomez",
-  },
-  {
-    id: 8,
-    title: "Mactan Newtown 2-Bedroom",
-    price: 35000,
-    location: "Mactan Island, Lapu-Lapu City",
-    district: "Mactan",
-    image: "https://picsum.photos/seed/mactan2br/600/400",
-    type: "2BR",
-    beds: 2,
-    baths: 2,
-    sqm: 65,
-    amenities: ["WiFi", "Aircon", "Pool"],
-    savedDaysAgo: 21,
-    landlord: "Ben Cruz",
-  },
-];
+function deriveType(unitType: string, beds: number): SavedListing["type"] {
+  if (unitType === "Bedspace") return "Bedspace";
+  if (unitType === "Studio" || beds === 0) return "Studio";
+  if (beds === 1) return "1BR";
+  if (beds === 2) return "2BR";
+  if (beds === 3) return "3BR";
+  return "1BR";
+}
+
+const MOCK_SAVED: SavedListing[] = Apartments.map((apt) => ({
+  id: apt.id,
+  title: apt.title,
+  price: parseInt(String(apt.price).replace(/[^0-9]/g, ""), 10),
+  location: apt.location,
+  district: apt.district ?? "",
+  image: apt.image,
+  type: deriveType(apt.unitType as string, apt.beds),
+  beds: apt.beds,
+  baths: apt.baths,
+  sqm: apt.sqm,
+  amenities: apt.amenities.map(
+    (a: { name: string; icon: string }) => ICON_NORMALIZE[a.icon] ?? a.icon
+  ),
+  savedDaysAgo: apt.savedDaysAgo ?? 0,
+  landlord:
+    typeof apt.landlord === "object" && apt.landlord !== null
+      ? (apt.landlord as { name: string }).name
+      : String(apt.landlord ?? ""),
+}));
+
 
 // ── Config ─────────────────────────────────────────────────────────────────────
 
@@ -161,11 +69,22 @@ const TYPE_FILTERS = ["All", "Studio", "1BR", "2BR", "Bedspace", "Co-Living"] as
 type TypeFilter = (typeof TYPE_FILTERS)[number];
 
 const SORT_OPTIONS = [
-  { value: "recent" as const, label: "Date Saved" },
+  { value: "recent" as const, label: "Recently Added" },
   { value: "price-asc" as const, label: "Price: Low to High" },
   { value: "price-desc" as const, label: "Price: High to Low" },
 ];
 type SortOption = "recent" | "price-asc" | "price-desc";
+
+type PriceRange = "any" | "under-10k" | "10k-20k" | "20k-35k" | "35k-plus";
+const PRICE_RANGES: { value: PriceRange; label: string; min: number; max: number }[] = [
+  { value: "any", label: "Any Price", min: 0, max: Infinity },
+  { value: "under-10k", label: "Under ₱10,000", min: 0, max: 9999 },
+  { value: "10k-20k", label: "₱10,000 – ₱20,000", min: 10000, max: 20000 },
+  { value: "20k-35k", label: "₱20,000 – ₱35,000", min: 20001, max: 35000 },
+  { value: "35k-plus", label: "₱35,000+", min: 35001, max: Infinity },
+];
+
+const ALL_AMENITIES = ["WiFi", "Aircon", "Gym", "Pool"] as const;
 
 const AMENITY_META: Record<string, { icon: React.ReactNode; label: string }> = {
   WiFi: { icon: <Wifi className="w-3.5 h-3.5" />, label: "WiFi" },
@@ -194,17 +113,33 @@ function formatSavedDate(days: number): string {
 
 // ── Root Component ─────────────────────────────────────────────────────────────
 
-export default function SavedListingsView({
+export default function BrowseApartmentsView({
   onViewDetail,
 }: {
   onViewDetail?: (id: number) => void;
 }) {
+  const router = useRouter();
+  const handleViewDetail = useCallback(
+    (id: number) => {
+      if (onViewDetail) {
+        onViewDetail(id);
+      } else {
+        router.push(`?view=browse-apartments&listing=${id}`);
+      }
+    },
+    [onViewDetail, router]
+  );
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState<SortOption>("recent");
   const [filterType, setFilterType] = useState<TypeFilter>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [removedIds, setRemovedIds] = useState<Set<number>>(new Set());
   const [sortOpen, setSortOpen] = useState(false);
+  const [priceRange, setPriceRange] = useState<PriceRange>("any");
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [priceOpen, setPriceOpen] = useState(false);
+  const [typeOpen, setTypeOpen] = useState(false);
+  const [amenityOpen, setAmenityOpen] = useState(false);
 
   const handleRemove = useCallback((id: number) => {
     setRemovedIds((prev) => new Set([...prev, id]));
@@ -227,17 +162,45 @@ export default function SavedListingsView({
       );
     }
 
+    if (priceRange !== "any") {
+      const range = PRICE_RANGES.find((r) => r.value === priceRange);
+      if (range) {
+        result = result.filter((l) => Number(l.price) >= range.min && Number(l.price) <= range.max);
+      }
+    }
+
+    if (selectedAmenities.length > 0) {
+      result = result.filter((l) =>
+        selectedAmenities.every((am) => l.amenities.includes(am))
+      );
+    }
+
     if (sortBy === "price-asc")
-      return [...result].sort((a, b) => a.price - b.price);
+      return [...result].sort((a, b) => Number(a.price) - Number(b.price));
     if (sortBy === "price-desc")
-      return [...result].sort((a, b) => b.price - a.price);
+      return [...result].sort((a, b) => Number(b.price) - Number(a.price));
     return [...result].sort((a, b) => a.savedDaysAgo - b.savedDaysAgo);
-  }, [removedIds, filterType, searchQuery, sortBy]);
+  }, [removedIds, filterType, searchQuery, sortBy, priceRange, selectedAmenities]);
 
   const totalSaved = MOCK_SAVED.length - removedIds.size;
   const currentSortLabel =
     SORT_OPTIONS.find((o) => o.value === sortBy)?.label ?? "Sort";
-  const hasActiveFilters = filterType !== "All" || !!searchQuery.trim();
+  const currentPriceLabel =
+    priceRange === "any"
+      ? "Price"
+      : (PRICE_RANGES.find((r) => r.value === priceRange)?.label ?? "Price");
+  const hasActiveFilters =
+    filterType !== "All" ||
+    !!searchQuery.trim() ||
+    priceRange !== "any" ||
+    selectedAmenities.length > 0;
+
+  const clearAllFilters = useCallback(() => {
+    setFilterType("All");
+    setSearchQuery("");
+    setPriceRange("any");
+    setSelectedAmenities([]);
+  }, []);
 
   return (
     <div>
@@ -246,7 +209,7 @@ export default function SavedListingsView({
         <div className="min-w-0">
           <div className="flex items-center gap-2.5 mb-0.5">
             <h1 className="text-[22px] font-black text-gray-900 leading-tight tracking-tight">
-              Saved Listings
+              Browse Apartments in Cebu City
             </h1>
             <span
               className="text-white text-[9px] font-black tracking-[0.12em] uppercase rounded-md px-2 py-[3px] shrink-0"
@@ -390,30 +353,287 @@ export default function SavedListingsView({
         </div>
       </div>
 
-      {/* ── Type Filter Chips ─────────────────────────────── */}
-      <div
-        className="flex items-center gap-1.5 overflow-x-auto pb-1 mb-4 scrollbar-hide"
-        role="group"
-        aria-label="Filter by property type"
-      >
-        {TYPE_FILTERS.map((type) => (
+      {/* ── Refiner Dropdowns ─────────────────────────────── */}
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
+
+        {/* Price dropdown */}
+        <div className="relative">
           <button
-            key={type}
-            onClick={() => setFilterType(type)}
-            aria-pressed={filterType === type}
+            onClick={() => {
+              setPriceOpen((v) => !v);
+              setTypeOpen(false);
+              setAmenityOpen(false);
+            }}
+            aria-haspopup="listbox"
+            aria-expanded={priceOpen}
             className={[
-              "shrink-0 px-3 py-1.5 rounded-lg text-[10.5px] font-bold tracking-[0.06em] uppercase",
-              "transition-all duration-200 cursor-pointer",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1B2B6B]/30",
-              filterType === type
-                ? "text-white shadow-sm"
-                : "bg-white border border-gray-200 text-gray-500 hover:border-[#1B2B6B]/30 hover:text-[#1B2B6B] shadow-sm",
+              "flex items-center gap-1.5 h-9 px-3 rounded-xl border shadow-sm text-[11.5px] font-medium transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1B2B6B]/30",
+              priceRange !== "any"
+                ? "bg-[#1B2B6B] text-white border-[#1B2B6B]"
+                : "bg-white border-gray-200 text-gray-700 hover:border-gray-300",
             ].join(" ")}
-            style={filterType === type ? { background: "#1B2B6B" } : {}}
           >
-            {type}
+            <span>{currentPriceLabel}</span>
+            <ChevronDown
+              className={[
+                "w-3 h-3 transition-transform duration-200",
+                priceOpen ? "rotate-180" : "",
+                priceRange !== "any" ? "text-white/70" : "text-gray-400",
+              ].join(" ")}
+            />
           </button>
-        ))}
+
+          {priceOpen && (
+            <>
+              <div
+                className="fixed inset-0 z-10"
+                onClick={() => setPriceOpen(false)}
+                aria-hidden="true"
+              />
+              <div
+                className="absolute left-0 top-full mt-1.5 w-56 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden z-20"
+                role="listbox"
+                aria-label="Filter by price range"
+              >
+                {PRICE_RANGES.filter((r) => r.value !== "any").map((range) => (
+                  <button
+                    key={range.value}
+                    onClick={() => {
+                      setPriceRange(range.value);
+                      setPriceOpen(false);
+                    }}
+                    role="option"
+                    aria-selected={priceRange === range.value}
+                    className={[
+                      "flex items-center justify-between w-full px-3.5 py-2.5 text-[12px] transition-colors duration-150 cursor-pointer",
+                      priceRange === range.value
+                        ? "text-[#1B2B6B] font-semibold"
+                        : "text-gray-700 hover:bg-gray-50 font-medium",
+                    ].join(" ")}
+                    style={
+                      priceRange === range.value
+                        ? { background: "rgba(27,43,107,0.05)" }
+                        : {}
+                    }
+                  >
+                    {range.label}
+                    {priceRange === range.value && (
+                      <span
+                        className="w-1.5 h-1.5 rounded-full"
+                        style={{ background: "#1B2B6B" }}
+                      />
+                    )}
+                  </button>
+                ))}
+                {priceRange !== "any" && (
+                  <>
+                    <div className="h-px bg-gray-100 mx-2" />
+                    <button
+                      onClick={() => {
+                        setPriceRange("any");
+                        setPriceOpen(false);
+                      }}
+                      className="flex items-center gap-1.5 w-full px-3.5 py-2.5 text-[11px] font-medium text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors duration-150 cursor-pointer"
+                    >
+                      <X className="w-3 h-3" />
+                      Any price
+                    </button>
+                  </>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Property Type dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => {
+              setTypeOpen((v) => !v);
+              setPriceOpen(false);
+              setAmenityOpen(false);
+            }}
+            aria-haspopup="listbox"
+            aria-expanded={typeOpen}
+            className={[
+              "flex items-center gap-1.5 h-9 px-3 rounded-xl border shadow-sm text-[11.5px] font-medium transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1B2B6B]/30",
+              filterType !== "All"
+                ? "bg-[#1B2B6B] text-white border-[#1B2B6B]"
+                : "bg-white border-gray-200 text-gray-700 hover:border-gray-300",
+            ].join(" ")}
+          >
+            <span>{filterType === "All" ? "Property Type" : filterType}</span>
+            <ChevronDown
+              className={[
+                "w-3 h-3 transition-transform duration-200",
+                typeOpen ? "rotate-180" : "",
+                filterType !== "All" ? "text-white/70" : "text-gray-400",
+              ].join(" ")}
+            />
+          </button>
+
+          {typeOpen && (
+            <>
+              <div
+                className="fixed inset-0 z-10"
+                onClick={() => setTypeOpen(false)}
+                aria-hidden="true"
+              />
+              <div
+                className="absolute left-0 top-full mt-1.5 w-44 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden z-20"
+                role="listbox"
+                aria-label="Filter by property type"
+              >
+                {TYPE_FILTERS.map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => {
+                      setFilterType(type);
+                      setTypeOpen(false);
+                    }}
+                    role="option"
+                    aria-selected={filterType === type}
+                    className={[
+                      "flex items-center justify-between w-full px-3.5 py-2.5 text-[12px] transition-colors duration-150 cursor-pointer",
+                      filterType === type
+                        ? "text-[#1B2B6B] font-semibold"
+                        : "text-gray-700 hover:bg-gray-50 font-medium",
+                    ].join(" ")}
+                    style={
+                      filterType === type
+                        ? { background: "rgba(27,43,107,0.05)" }
+                        : {}
+                    }
+                  >
+                    {type === "All" ? "Any Type" : type}
+                    {filterType === type && (
+                      <span
+                        className="w-1.5 h-1.5 rounded-full"
+                        style={{ background: "#1B2B6B" }}
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Amenities dropdown with checkboxes */}
+        <div className="relative">
+          <button
+            onClick={() => {
+              setAmenityOpen((v) => !v);
+              setPriceOpen(false);
+              setTypeOpen(false);
+            }}
+            aria-haspopup="true"
+            aria-expanded={amenityOpen}
+            className={[
+              "flex items-center gap-1.5 h-9 px-3 rounded-xl border shadow-sm text-[11.5px] font-medium transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1B2B6B]/30",
+              selectedAmenities.length > 0
+                ? "bg-[#1B2B6B] text-white border-[#1B2B6B]"
+                : "bg-white border-gray-200 text-gray-700 hover:border-gray-300",
+            ].join(" ")}
+          >
+            <span>
+              {selectedAmenities.length === 0
+                ? "Amenities"
+                : selectedAmenities.length === 1
+                ? selectedAmenities[0]
+                : `Amenities (${selectedAmenities.length})`}
+            </span>
+            <ChevronDown
+              className={[
+                "w-3 h-3 transition-transform duration-200",
+                amenityOpen ? "rotate-180" : "",
+                selectedAmenities.length > 0 ? "text-white/70" : "text-gray-400",
+              ].join(" ")}
+            />
+          </button>
+
+          {amenityOpen && (
+            <>
+              <div
+                className="fixed inset-0 z-10"
+                onClick={() => setAmenityOpen(false)}
+                aria-hidden="true"
+              />
+              <div
+                className="absolute left-0 top-full mt-1.5 w-52 bg-white rounded-xl border border-gray-200 shadow-lg z-20 p-1.5"
+                aria-label="Filter by amenities"
+              >
+                {ALL_AMENITIES.map((am) => {
+                  const meta = AMENITY_META[am];
+                  const checked = selectedAmenities.includes(am);
+                  return (
+                    <button
+                      key={am}
+                      onClick={() => {
+                        setSelectedAmenities((prev) =>
+                          checked
+                            ? prev.filter((a) => a !== am)
+                            : [...prev, am]
+                        );
+                      }}
+                      className={[
+                        "flex items-center gap-2.5 w-full px-3 py-2.5 rounded-lg text-[12px] font-medium transition-colors duration-150 cursor-pointer",
+                        checked ? "text-[#1B2B6B]" : "text-gray-700 hover:bg-gray-50",
+                      ].join(" ")}
+                      style={checked ? { background: "rgba(27,43,107,0.05)" } : {}}
+                    >
+                      {/* Custom checkbox */}
+                      <span
+                        className={[
+                          "w-4 h-4 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all duration-150",
+                          checked ? "border-[#1B2B6B]" : "border-gray-300",
+                        ].join(" ")}
+                        style={checked ? { background: "#1B2B6B" } : {}}
+                      >
+                        {checked && (
+                          <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
+                            <path
+                              d="M1 3L3 5L7 1"
+                              stroke="white"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        )}
+                      </span>
+                      {meta?.icon}
+                      <span>{meta?.label ?? am}</span>
+                    </button>
+                  );
+                })}
+                {selectedAmenities.length > 0 && (
+                  <>
+                    <div className="h-px bg-gray-100 mx-1 my-1" />
+                    <button
+                      onClick={() => setSelectedAmenities([])}
+                      className="flex items-center gap-1.5 w-full px-3 py-2 rounded-lg text-[11px] font-medium text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors duration-150 cursor-pointer"
+                    >
+                      <X className="w-3 h-3" />
+                      Clear amenities
+                    </button>
+                  </>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Clear all active filters */}
+        {hasActiveFilters && (
+          <button
+            onClick={clearAllFilters}
+            className="flex items-center gap-1 h-9 px-3 rounded-xl text-[11.5px] font-medium text-black bg-red-200  border border-transparent transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200"
+          >
+            <X className="w-4 h-4" />
+            Clear all
+          </button>
+        )}
       </div>
 
       {/* Results count */}
@@ -435,10 +655,7 @@ export default function SavedListingsView({
       {listings.length === 0 ? (
         <EmptyState
           hasFilters={hasActiveFilters}
-          onClearFilters={() => {
-            setFilterType("All");
-            setSearchQuery("");
-          }}
+          onClearFilters={clearAllFilters}
         />
       ) : (
         <div
@@ -454,7 +671,7 @@ export default function SavedListingsView({
               listing={listing}
               viewMode={viewMode}
               onRemove={handleRemove}
-              onViewDetail={onViewDetail}
+              onViewDetail={handleViewDetail}
             />
           ))}
         </div>

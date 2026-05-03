@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   ArrowLeft,
@@ -26,306 +27,14 @@ import {
   Bookmark,
   Share2,
   X,
-  TrendingDown,
   Heart,
 } from "lucide-react";
 import type { ListingDetail } from "@/app/shared/types";
+import {LISTINGS} from "@/app/shared/mockData/APARTMENTS";
 
 // ── Mock Data ──────────────────────────────────────────────────────────────────
 
-const LISTINGS: Record<number, ListingDetail> = {
-  1: {
-    id: 1,
-    title: "Skyrise 3 Studio Unit",
-    unit: "Unit 12A",
-    price: 25000,
-    priceSuffix: "Inclusive of Condo Dues",
-    location: "200m from IT Park, Lahug, Cebu City",
-    district: "IT Park",
-    beds: 0,
-    baths: 1,
-    sqm: 28,
-    furnishing: "Full Furnished",
-    description:
-      "A sleek, fully furnished studio in the heart of IT Park — Cebu's premier business and lifestyle hub. Floor-to-ceiling windows flood the space with natural light. Features a built-in Murphy bed, compact modern kitchen, and smart storage throughout. Walking distance to restaurants, cafes, and major BPO offices.",
-    images: [
-      "https://picsum.photos/seed/sky3-main/1200/800",
-      "https://picsum.photos/seed/sky3-kitchen/600/400",
-      "https://picsum.photos/seed/sky3-living/600/400",
-      "https://picsum.photos/seed/sky3-bath/600/400",
-      "https://picsum.photos/seed/sky3-view/600/400",
-    ],
-    amenities: [
-      { name: "High-speed WiFi", icon: "wifi" },
-      { name: "Air Conditioning", icon: "wind" },
-      { name: "Gym Access", icon: "dumbbell" },
-      { name: "Swimming Pool", icon: "waves" },
-    ],
-    landlord: {
-      name: "Maria Santos",
-      title: "Verified Landlord",
-      rating: 4.9,
-      reviewCount: 47,
-      responseTime: "Under 1 hour",
-      memberSince: "May 2021",
-      avatar: "https://picsum.photos/seed/landlord-maria/200/200",
-    },
-  },
-  2: {
-    id: 2,
-    title: "Mivesa Garden Residences",
-    unit: "Unit 8B",
-    price: 18500,
-    priceSuffix: "Bills Negotiable",
-    location: "Lahug, Cebu City",
-    district: "Lahug",
-    beds: 1,
-    baths: 1,
-    sqm: 42,
-    furnishing: "Semi-Furnished",
-    description:
-      "Garden-side 1-bedroom unit at Mivesa, one of Lahug's most sought-after addresses. Enjoy lush greenery views from your private balcony. Features a spacious bedroom with built-in wardrobe, well-appointed kitchen, and generous living and dining areas.",
-    images: [
-      "https://picsum.photos/seed/mivesa-main/1200/800",
-      "https://picsum.photos/seed/mivesa-living/600/400",
-      "https://picsum.photos/seed/mivesa-bed/600/400",
-      "https://picsum.photos/seed/mivesa-bath/600/400",
-      "https://picsum.photos/seed/mivesa-balcony/600/400",
-    ],
-    amenities: [
-      { name: "High-speed WiFi", icon: "wifi" },
-      { name: "Swimming Pool", icon: "waves" },
-    ],
-    landlord: {
-      name: "Robert Lim",
-      title: "Verified Landlord",
-      rating: 4.7,
-      reviewCount: 31,
-      responseTime: "Under 2 hours",
-      memberSince: "March 2020",
-      avatar: "https://picsum.photos/seed/landlord-robert/200/200",
-    },
-    priceChange: { direction: "down", amount: 1500 },
-  },
-  3: {
-    id: 3,
-    title: "Avida Towers Riala",
-    unit: "Unit 22C",
-    price: 32000,
-    priceSuffix: "Inclusive of Association Dues",
-    location: "IT Park, Lahug, Cebu City",
-    district: "IT Park",
-    beds: 1,
-    baths: 1,
-    sqm: 48,
-    furnishing: "Full Furnished",
-    description:
-      "Premium 1-bedroom unit in Avida Towers Riala, sitting directly within IT Park. Fully furnished with high-quality fixtures and fittings. Enjoy city and mountain views from the upper floors. The property features resort-level amenities and 24/7 security.",
-    images: [
-      "https://picsum.photos/seed/avida-main/1200/800",
-      "https://picsum.photos/seed/avida-kitchen/600/400",
-      "https://picsum.photos/seed/avida-bed/600/400",
-      "https://picsum.photos/seed/avida-bath/600/400",
-      "https://picsum.photos/seed/avida-gym/600/400",
-    ],
-    amenities: [
-      { name: "High-speed WiFi", icon: "wifi" },
-      { name: "Air Conditioning", icon: "wind" },
-      { name: "Gym Access", icon: "dumbbell" },
-    ],
-    landlord: {
-      name: "Ana Reyes",
-      title: "Verified Landlord",
-      rating: 4.8,
-      reviewCount: 62,
-      responseTime: "Same day",
-      memberSince: "January 2019",
-      avatar: "https://picsum.photos/seed/landlord-ana/200/200",
-    },
-  },
-  4: {
-    id: 4,
-    title: "Cebu Business Park Bedspace",
-    unit: "Bed 4 — Room 2B",
-    price: 5500,
-    priceSuffix: "All-In Monthly Rate",
-    location: "Cebu Business Park, Cebu City",
-    district: "CBP",
-    beds: 0,
-    baths: 1,
-    sqm: 12,
-    furnishing: "Full Furnished",
-    description:
-      "Cozy, air-conditioned bedspace in a clean, well-maintained house just steps from Cebu Business Park. Includes access to a shared kitchen, living area, and private lockers. Perfect for young professionals or students who want a safe, budget-friendly option near CBP and Ayala.",
-    images: [
-      "https://picsum.photos/seed/cbpbed-main/1200/800",
-      "https://picsum.photos/seed/cbpbed-room/600/400",
-      "https://picsum.photos/seed/cbpbed-common/600/400",
-      "https://picsum.photos/seed/cbpbed-bath/600/400",
-      "https://picsum.photos/seed/cbpbed-kitchen/600/400",
-    ],
-    amenities: [
-      { name: "High-speed WiFi", icon: "wifi" },
-      { name: "Air Conditioning", icon: "wind" },
-    ],
-    landlord: {
-      name: "Jun Villanueva",
-      title: "Verified Landlord",
-      rating: 4.6,
-      reviewCount: 88,
-      responseTime: "Under 3 hours",
-      memberSince: "February 2018",
-      avatar: "https://picsum.photos/seed/landlord-jun/200/200",
-    },
-    priceChange: { direction: "up", amount: 500 },
-  },
-  5: {
-    id: 5,
-    title: "The Courtyard Residences",
-    unit: "Unit 3F",
-    price: 42000,
-    priceSuffix: "2 Months Deposit",
-    location: "Banilad, Cebu City",
-    district: "Banilad",
-    beds: 2,
-    baths: 2,
-    sqm: 72,
-    furnishing: "Full Furnished",
-    description:
-      "Expansive 2-bedroom unit in the prestigious Courtyard Residences. Features imported marble flooring, a gourmet kitchen with top-of-the-line appliances, and two lavish bedrooms with en-suite bathrooms. One of Banilad's most prestigious addresses, minutes from major schools and hospitals.",
-    images: [
-      "https://picsum.photos/seed/courtyard-main/1200/800",
-      "https://picsum.photos/seed/courtyard-living/600/400",
-      "https://picsum.photos/seed/courtyard-bed/600/400",
-      "https://picsum.photos/seed/courtyard-bath/600/400",
-      "https://picsum.photos/seed/courtyard-pool/600/400",
-    ],
-    amenities: [
-      { name: "High-speed WiFi", icon: "wifi" },
-      { name: "Air Conditioning", icon: "wind" },
-      { name: "Gym Access", icon: "dumbbell" },
-      { name: "Swimming Pool", icon: "waves" },
-    ],
-    landlord: {
-      name: "Grace Tan",
-      title: "Verified Landlord",
-      rating: 5.0,
-      reviewCount: 18,
-      responseTime: "Under 1 hour",
-      memberSince: "August 2022",
-      avatar: "https://picsum.photos/seed/landlord-grace/200/200",
-    },
-  },
-  6: {
-    id: 6,
-    title: "Marco Polo Residences Studio",
-    unit: "Unit 9D",
-    price: 22000,
-    priceSuffix: "Inclusive of Condo Dues",
-    location: "Banilad Road, Cebu City",
-    district: "Banilad",
-    beds: 0,
-    baths: 1,
-    sqm: 30,
-    furnishing: "Full Furnished",
-    description:
-      "Well-appointed studio in Marco Polo Residences — a trusted name in Cebu real estate. Features a smart open-plan layout with a queen-size bed, sofa area, and efficient kitchen. Direct access to the pool and gym. Ideal for business travelers and expats.",
-    images: [
-      "https://picsum.photos/seed/marcopolo-main/1200/800",
-      "https://picsum.photos/seed/marcopolo-living/600/400",
-      "https://picsum.photos/seed/marcopolo-kitchen/600/400",
-      "https://picsum.photos/seed/marcopolo-bath/600/400",
-      "https://picsum.photos/seed/marcopolo-pool/600/400",
-    ],
-    amenities: [
-      { name: "High-speed WiFi", icon: "wifi" },
-      { name: "Air Conditioning", icon: "wind" },
-      { name: "Swimming Pool", icon: "waves" },
-    ],
-    landlord: {
-      name: "Carlo Reyes",
-      title: "Verified Landlord",
-      rating: 4.8,
-      reviewCount: 53,
-      responseTime: "Under 2 hours",
-      memberSince: "June 2020",
-      avatar: "https://picsum.photos/seed/landlord-carlo/200/200",
-    },
-    priceChange: { direction: "down", amount: 2000 },
-  },
-  7: {
-    id: 7,
-    title: "Baseline Premiere Residences",
-    unit: "Unit 5A",
-    price: 28000,
-    priceSuffix: "1 Month Deposit",
-    location: "Escario Street, Lahug, Cebu City",
-    district: "Lahug",
-    beds: 1,
-    baths: 1,
-    sqm: 38,
-    furnishing: "Semi-Furnished",
-    description:
-      "Charming 1-bedroom unit in Baseline Premiere, a boutique residence along Escario Street. Features hardwood flooring, high ceilings, and a cozy private balcony. Minutes from IT Park and the Cebu Business District. Semi-furnished with a bed frame, wardrobe, and kitchen appliances.",
-    images: [
-      "https://picsum.photos/seed/baseline-main/1200/800",
-      "https://picsum.photos/seed/baseline-bed/600/400",
-      "https://picsum.photos/seed/baseline-living/600/400",
-      "https://picsum.photos/seed/baseline-bath/600/400",
-      "https://picsum.photos/seed/baseline-balcony/600/400",
-    ],
-    amenities: [
-      { name: "High-speed WiFi", icon: "wifi" },
-      { name: "Air Conditioning", icon: "wind" },
-      { name: "Gym Access", icon: "dumbbell" },
-    ],
-    landlord: {
-      name: "Pia Gomez",
-      title: "Verified Landlord",
-      rating: 4.7,
-      reviewCount: 24,
-      responseTime: "Same day",
-      memberSince: "October 2021",
-      avatar: "https://picsum.photos/seed/landlord-pia/200/200",
-    },
-  },
-  8: {
-    id: 8,
-    title: "Mactan Newtown 2-Bedroom",
-    unit: "Unit 15C",
-    price: 35000,
-    priceSuffix: "2 Months Deposit",
-    location: "Mactan Newtown, Lapu-Lapu City",
-    district: "Mactan",
-    beds: 2,
-    baths: 2,
-    sqm: 65,
-    furnishing: "Full Furnished",
-    description:
-      "Bright, resort-inspired 2-bedroom unit overlooking the Mactan Channel. Features an open-concept living and dining area, a fully equipped kitchen, and two spacious bedrooms. Enjoy direct access to a stunning infinity pool and white sand beach. Perfect for families or couples who love island living.",
-    images: [
-      "https://picsum.photos/seed/mactan2br-main/1200/800",
-      "https://picsum.photos/seed/mactan2br-living/600/400",
-      "https://picsum.photos/seed/mactan2br-bed/600/400",
-      "https://picsum.photos/seed/mactan2br-bath/600/400",
-      "https://picsum.photos/seed/mactan2br-pool/600/400",
-    ],
-    amenities: [
-      { name: "High-speed WiFi", icon: "wifi" },
-      { name: "Air Conditioning", icon: "wind" },
-      { name: "Swimming Pool", icon: "waves" },
-    ],
-    landlord: {
-      name: "Ben Cruz",
-      title: "Verified Landlord",
-      rating: 4.9,
-      reviewCount: 36,
-      responseTime: "Under 1 hour",
-      memberSince: "April 2022",
-      avatar: "https://picsum.photos/seed/landlord-ben/200/200",
-    },
-  },
-};
+
 
 // ── Amenity Icon Map ───────────────────────────────────────────────────────────
 
@@ -341,12 +50,14 @@ const AMENITY_ICONS: Record<string, React.ReactNode> = {
 
 interface Props {
   id: number;
-  onBack: () => void;
+  /** URL to navigate back to when the back button is clicked, e.g. "?view=saved" */
+  backHref: string;
 }
 
 // ── Root Component ─────────────────────────────────────────────────────────────
 
-export default function DashboardListingDetail({ id, onBack }: Props) {
+export default function ListingDetailView({ id, backHref }: Props) {
+  const router = useRouter();
   const listing = LISTINGS[id];
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -389,12 +100,12 @@ export default function DashboardListingDetail({ id, onBack }: Props) {
           This listing may have been removed or is no longer available.
         </p>
         <button
-          onClick={onBack}
+          onClick={() => router.push(backHref)}
           className="inline-flex items-center gap-1.5 px-5 py-2.5 text-white rounded-xl text-[12px] font-bold transition-opacity hover:opacity-90 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1B2B6B] focus-visible:ring-offset-2"
           style={{ background: "#1B2B6B" }}
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          Back to Saved Listings
+          Go back
         </button>
       </div>
     );
@@ -419,7 +130,7 @@ export default function DashboardListingDetail({ id, onBack }: Props) {
         <div className="flex items-center justify-between gap-3 mb-5 flex-wrap sm:flex-nowrap">
           {/* Back button */}
           <button
-            onClick={onBack}
+            onClick={() => router.push(backHref)}
             className="flex items-center gap-2 text-[12.5px] font-semibold text-gray-500 hover:text-[#1B2B6B] transition-colors duration-200 cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1B2B6B]/30 rounded-lg px-1 py-0.5"
           >
             <span
@@ -428,7 +139,7 @@ export default function DashboardListingDetail({ id, onBack }: Props) {
             >
               <ArrowLeft className="w-3.5 h-3.5" />
             </span>
-            <span className="hidden sm:inline">Back to Saved Listings</span>
+            <span className="hidden sm:inline">Back</span>
             <span className="sm:hidden">Back</span>
           </button>
 
@@ -536,19 +247,6 @@ export default function DashboardListingDetail({ id, onBack }: Props) {
                   <div className="text-[11px] text-gray-400 mt-0.5">
                     {listing.priceSuffix}
                   </div>
-                  {listing.priceChange && (
-                    <div
-                      className={[
-                        "inline-flex items-center gap-1 text-[10px] font-bold rounded-md px-1.5 py-1 mt-1.5",
-                        listing.priceChange.direction === "down"
-                          ? "bg-emerald-50 text-emerald-600"
-                          : "bg-red-50 text-red-500",
-                      ].join(" ")}
-                    >
-                      <TrendingDown className="w-3 h-3" />
-                      ₱{listing.priceChange.amount.toLocaleString()} price drop
-                    </div>
-                  )}
                 </div>
               </div>
             </div>

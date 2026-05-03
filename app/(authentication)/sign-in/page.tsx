@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import {  ShieldCheck } from "lucide-react";
 import { SignInForm } from "./components/SignInForm";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Sign In — PuyoTa",
@@ -13,12 +14,25 @@ export default function SignInPage() {
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-10">
         <div className="w-full max-w-[480px] flex flex-col gap-5">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-7 sm:px-10 py-8 sm:py-10 flex flex-col gap-6">
+            
             <div className="text-center flex flex-col gap-1">
+              <div className="flex flex-row items-center text-center gap-1 justify-center">
+              <Image
+              src="/Puyota-Logo.png"
+              alt="PuyoTa Logo"
+              width={80}
+              height={80}
+              className="align-middle"
+            />
+            <span className="text-[30px] font-semibold">
+              PuyoTa
+            </span>
+            </div>
               <h1 className="text-lg font-semibold text-gray-900 tracking-tight">
-                Welcome back
+                Welcome back, let&apos;s get you signed in.
               </h1>
-              <p className="text-sm text-gray-500">
-                Sophisticated Trust in Real Estate.
+              <p className="text-[12px] text-gray-500">
+                Access your dashboard. Explore or manage verified listings in Cebu City.
               </p>
             </div>
 

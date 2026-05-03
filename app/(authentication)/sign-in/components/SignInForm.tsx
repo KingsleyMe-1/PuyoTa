@@ -58,52 +58,27 @@ export function SignInForm() {
       setIsLoading(false);
       return;
     }
-    router.push("/dashboard");
+
+    // Fetch role from DB to determine where to redirect
+    const { data: { user } } = await supabase.auth.getUser();
+    let role = "tenant";
+    if (user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+      role = profile?.role ?? "tenant";
+    }
+
+    router.push(role === "landlord" ? "/landlord" : "/tenant");
     router.refresh();
   }
 
-  async function handleGoogle() {
-    setGoogleLoading(true);
-    setError(null);
-    const supabase = createClient();
-    const { error: authError } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-    if (authError) {
-      setError(authError.message);
-      setGoogleLoading(false);
-    }
-    // On success the browser navigates away — no need to setGoogleLoading(false)
-  }
+  
 
   return (
     <div className="flex flex-col gap-6 w-full">
-      <button
-        type="button"
-        onClick={handleGoogle}
-        disabled={googleLoading || isLoading}
-        aria-label="Login with Google"
-        className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-xl py-3 px-4 text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 active:scale-[0.99] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/30 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer shadow-sm"
-      >
-        {googleLoading ? (
-          <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
-        ) : (
-          <GoogleIcon />
-        )}
-        <span>Login with Google</span>
-      </button>
-
-      <div className="flex items-center gap-3" role="separator">
-        <div className="flex-1 h-px bg-gray-200" />
-        <span className="text-[11px] font-semibold tracking-widest text-gray-400 uppercase">
-          or email
-        </span>
-        <div className="flex-1 h-px bg-gray-200" />
-      </div>
-
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
           <label
