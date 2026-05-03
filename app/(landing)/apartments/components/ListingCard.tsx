@@ -16,19 +16,7 @@ import {
   BadgeCheck,
   ArrowUpRight,
 } from "lucide-react";
-
-export interface Listing {
-  id: number;
-  title: string;
-  price: number;
-  location: string;
-  image: string;
-  unitType: string;
-  beds: number;
-  baths: number;
-  sqm: number;
-  amenities: string[];
-}
+import type { Listing } from "@/app/shared/types";
 
 const AMENITY_ICONS: Record<string, React.ReactNode> = {
   WiFi: <Wifi className="w-3.5 h-3.5" />,

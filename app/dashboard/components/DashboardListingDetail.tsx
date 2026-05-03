@@ -29,33 +29,7 @@ import {
   TrendingDown,
   Heart,
 } from "lucide-react";
-
-interface ListingDetail {
-  id: number;
-  title: string;
-  unit: string;
-  price: number;
-  priceSuffix: string;
-  location: string;
-  district: string;
-  beds: number;
-  baths: number;
-  sqm: number;
-  furnishing: string;
-  description: string;
-  images: string[];
-  amenities: Array<{ name: string; icon: string }>;
-  landlord: {
-    name: string;
-    title: string;
-    rating: number;
-    reviewCount: number;
-    responseTime: string;
-    memberSince: string;
-    avatar: string;
-  };
-  priceChange?: { direction: "up" | "down"; amount: number };
-}
+import type { ListingDetail } from "@/app/shared/types";
 
 // ── Mock Data ──────────────────────────────────────────────────────────────────
 
@@ -653,7 +627,7 @@ export default function DashboardListingDetail({ id, onBack }: Props) {
 
           {/* RIGHT: Landlord card (sticky on desktop) ─────── */}
           <div className="lg:sticky lg:top-4">
-            <LandlordCard landlord={listing.landlord} />
+            {listing.landlord && <LandlordCard landlord={listing.landlord} />}
           </div>
         </div>
       </div>

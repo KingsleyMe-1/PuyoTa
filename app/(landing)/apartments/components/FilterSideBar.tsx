@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MapPin, ChevronDown } from "lucide-react";
+import type { Filters } from "@/app/shared/types";
 import { Apartments } from "@/app/shared/mockData/APARTMENTS"
 
 const AMENITY_OPTIONS = ["WiFi", "Aircon", "Gym", "Pool"];
@@ -12,14 +13,6 @@ const PROPERTY_TYPES = [
         return `${apt.unitType}`;
     })),
 ];
-
-export interface Filters {
-  location: string;
-  minPrice: string;
-  maxPrice: string;
-  propertyType: string;
-  amenities: string[];
-}
 
 interface FilterSidebarProps {
   onApply: (filters: Filters) => void;

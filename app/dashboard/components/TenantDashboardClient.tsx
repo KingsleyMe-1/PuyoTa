@@ -24,26 +24,10 @@ import {
   Home,
   ArrowUpRight,
 } from "lucide-react";
+import type { Profile, SavedListing } from "@/app/shared/types";
 
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-
-interface Profile {
-  fullName: string | null;
-  role: "tenant" | "landlord";
-  idVerified: boolean;
-  avatarUrl: string | null;
-  email: string;
-}
-
-interface SavedListing {
-  id: number;
-  title: string;
-  price: number;
-  location: string;
-  image: string;
-  tags: string[];
-}
 
 interface Message {
   id: number;
@@ -64,7 +48,15 @@ const SAVED_LISTINGS: SavedListing[] = [
     title: "Skyrise 3 Studio Unit",
     price: 25000,
     location: "200m from IT Park, Cebu City",
+    district: "IT Park",
     image: "https://picsum.photos/seed/sky3/600/400",
+    type: "Studio",
+    beds: 0,
+    baths: 1,
+    sqm: 28,
+    amenities: ["WiFi", "Aircon", "Gym"],
+    savedDaysAgo: 2,
+    landlord: "Maria Santos",
     tags: ["STUDIO", "FURNISHED"],
   },
   {
@@ -72,7 +64,15 @@ const SAVED_LISTINGS: SavedListing[] = [
     title: "Mivesa Garden Residences",
     price: 18500,
     location: "Lahug, Cebu City",
+    district: "Lahug",
     image: "https://picsum.photos/seed/mivesa/600/400",
+    type: "1BR",
+    beds: 1,
+    baths: 1,
+    sqm: 42,
+    amenities: ["WiFi", "Pool"],
+    savedDaysAgo: 5,
+    landlord: "Robert Lim",
     tags: ["1BR", "POOL VIEW"],
   },
 ];
@@ -743,7 +743,7 @@ function DashboardListingCard({
       <div className="p-3">
         {/* Tags + price */}
         <div className="flex items-center gap-1.5 flex-wrap mb-1.5">
-          {listing.tags.map((tag) => (
+          {listing.tags?.map((tag) => (
             <span
               key={tag}
               className="text-[8.5px] font-bold tracking-[0.12em] uppercase text-gray-500 bg-gray-100 rounded px-1.5 py-[2px]"

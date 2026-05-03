@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ListingDetailClient, type ListingDetail } from "./components/ListingDetailClient";
+import type { ListingDetail } from "@/app/shared/types";
+import { ListingDetailClient } from "./components/ListingDetailClient";
 import { LISTINGS } from "../../../shared/mockData/APARTMENTS";
 
 export async function generateMetadata({

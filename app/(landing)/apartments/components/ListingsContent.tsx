@@ -3,8 +3,9 @@
 import { useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { LayoutGrid, List, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
-import { FilterSidebar, type Filters } from "./FilterSideBar";
-import { ListingCard, type Listing } from "./ListingCard";
+import type { Filters, Listing } from "@/app/shared/types";
+import { FilterSidebar } from "./FilterSideBar";
+import { ListingCard } from "./ListingCard";
 import { ALL_LISTINGS } from "@/app/shared/mockData/APARTMENTS";
 
 const ITEMS_PER_PAGE = 4;

@@ -29,32 +29,7 @@ import {
   ChevronRight,
   LayoutGrid,
 } from "lucide-react";
-
-export type ListingDetail = {
-  id: number;
-  title: string;
-  unit: string;
-  price: number;
-  priceSuffix?: string | null;
-  location: string;
-  district: string;
-  description: string;
-  beds: number;
-  baths: number;
-  sqm: number;
-  furnishing: string;
-  images: string[];
-  amenities: { name: string; icon: string }[];
-  landlord: {
-    name: string;
-    title: string;
-    rating: number;
-    reviewCount: number;
-    responseTime: string;
-    memberSince: string;
-    avatar: string;
-  } | null;
-};
+import type { ListingDetail } from "@/app/shared/types";
 
 /* ─── Amenity icon mapping ───────────────────────────────── */
 const AMENITY_ICONS: Record<string, React.ReactNode> = {

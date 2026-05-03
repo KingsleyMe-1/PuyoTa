@@ -85,7 +85,7 @@ export function SignInForm() {
         type="button"
         onClick={handleGoogle}
         disabled={googleLoading || isLoading}
-        aria-label="Continue with Google"
+        aria-label="Login with Google"
         className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-xl py-3 px-4 text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 active:scale-[0.99] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/30 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer shadow-sm"
       >
         {googleLoading ? (
@@ -93,7 +93,7 @@ export function SignInForm() {
         ) : (
           <GoogleIcon />
         )}
-        <span>Continue with Google</span>
+        <span>Login with Google</span>
       </button>
 
       <div className="flex items-center gap-3" role="separator">
