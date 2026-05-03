@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -25,11 +26,11 @@ import {
   SlidersHorizontal,
   X,
 } from "lucide-react";
-import type { SavedListing } from "@/app/shared/types";
+import type { ManagedListing } from "@/app/shared/types";
 
 // ── Mock Data ──────────────────────────────────────────────────────────────────
 
-const MOCK_SAVED: SavedListing[] = [
+const MOCK_SAVED: ManagedListing[] = [
   {
     id: 1,
     title: "Skyrise 3 Studio Unit",
@@ -194,11 +195,8 @@ function formatSavedDate(days: number): string {
 
 // ── Root Component ─────────────────────────────────────────────────────────────
 
-export default function ManageListingsView({
-  onViewDetail,
-}: {
-  onViewDetail?: (id: number) => void;
-}) {
+export default function ManagedListingsView() {
+  const router = useRouter();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState<SortOption>("recent");
   const [filterType, setFilterType] = useState<TypeFilter>("All");
@@ -449,12 +447,12 @@ export default function ManageListingsView({
           }
         >
           {listings.map((listing) => (
-            <SavedListingCard
+            <ManagedListingCard
               key={listing.id}
               listing={listing}
               viewMode={viewMode}
               onRemove={handleRemove}
-              onViewDetail={onViewDetail}
+              onViewDetail={(id) => router.push(`?view=saved&listing=${id}`)}
             />
           ))}
         </div>
@@ -519,13 +517,13 @@ function EmptyState({
 
 // ── Saved Listing Card ─────────────────────────────────────────────────────────
 
-function SavedListingCard({
+function ManagedListingCard({
   listing,
   viewMode,
   onRemove,
   onViewDetail,
 }: {
-  listing: SavedListing;
+  listing: ManagedListing;
   viewMode: "grid" | "list";
   onRemove: (id: number) => void;
   onViewDetail?: (id: number) => void;

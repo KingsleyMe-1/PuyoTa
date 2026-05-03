@@ -6,17 +6,21 @@ import VerificationView from "@/app/shared/components/VerificationView";
 import LandlordOverview from "./components/LandlordOverview";
 import BrowseApartmentsView from "@/app/shared/components/BrowseApartmentsView";
 import ManageListingsView from "./components/ManageListingsView";
+import ListingDetailView from "@/app/shared/components/ListingDetailView";
 
 export const metadata: Metadata = {
   title: "Landlord Dashboard — PuyoTa",
 };
 
 type Props = {
-  searchParams: Promise<{ view?: string }>;
+  searchParams: Promise<{ view?: string; listing?: string }>;
 };
 
 export default async function LandlordPage({ searchParams }: Props) {
-  const { view = "overview" } = await searchParams;
+  const { view = "overview", listing } = await searchParams;
+  const listingId = listing ? parseInt(listing, 10) : null;
+  const showDetail = listingId !== null && !Number.isNaN(listingId);
+
 
   const supabase = await createClient();
   const {
@@ -53,6 +57,14 @@ export default async function LandlordPage({ searchParams }: Props) {
       </div>
     );
   }
+
+  if (showDetail) {
+      return (
+        <div className="h-full overflow-y-auto px-4 sm:px-6 pb-8 pt-8">
+          <ListingDetailView id={listingId!} backHref={`?view=${view}`} />
+        </div>
+      );
+    }
 
   return (
     <div className="h-full overflow-y-auto px-4 sm:px-6 pb-8 pt-8">

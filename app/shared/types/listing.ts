@@ -70,3 +70,21 @@ export interface SavedListing {
   priceChange?: { direction: "up" | "down"; amount: number };
   tags?: string[];
 }
+
+export interface ManagedListing {
+  id: number;
+  title: string;
+  price: number;
+  location: string;
+  district: string;
+  image: string;
+  type: "Studio" | "1BR" | "2BR" | "3BR" | "Bedspace" | "Co-Living";
+  beds: number;
+  baths: number;
+  sqm: number;
+  amenities: string[];
+  savedDaysAgo: number;
+  landlord: string;
+  priceChange?: { direction: "up" | "down"; amount: number };
+  tags?: string[];
+}
