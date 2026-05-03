@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   Home,
   Building2,
@@ -752,7 +751,6 @@ function StepVerification({
 // Main exported component
 // ─────────────────────────────────────────────────────────────
 export function SignUpFlow() {
-  const router = useRouter();
   const [step, setStep] = useState<Step>(1);
   const [form, setForm] = useState<FormState>(INITIAL);
 
@@ -772,12 +770,21 @@ export function SignUpFlow() {
   async function handleSignUp(): Promise<void> {
     const supabase = createClient();
 
-    // 1. Create the auth user
+    // 1. Create the auth user.
+    //    All profile fields are passed as user metadata so the
+    //    `handle_new_user` DB trigger can create the profile row
+    //    server-side (SECURITY DEFINER) — this covers the case where
+    //    email confirmation is enabled and there is no session yet.
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
       options: {
-        data: { full_name: form.fullName },
+        data: {
+          full_name: form.fullName,
+          role: form.role,
+          phone: form.phone ? `+63${form.phone.replace(/\s/g, "")}` : null,
+          location_preferences: form.locations,
+        },
       },
     });
 
@@ -786,18 +793,25 @@ export function SignUpFlow() {
     const user = signUpData.user;
     if (!user) throw new Error("Sign-up succeeded but no user was returned.");
 
-    // 2. Insert the profile row (safe: auth.uid() is set by Supabase JWT)
-    const { error: profileError } = await supabase.from("profiles").insert({
-      id: user.id,
-      role: form.role,
-      full_name: form.fullName,
-      phone: form.phone ? `+63${form.phone.replace(/\s/g, "")}` : null,
-      location_preferences: form.locations,
-    });
+    // 2. When autoconfirm is ON, the session is available immediately.
+    //    Upsert the profile row with the form values.
+    //    If the DB trigger already ran (email-confirmation scenario),
+    //    onConflict: 'id' turns this into an update — a safe no-op.
+    if (signUpData.session) {
+      const { error: profileError } = await supabase.from("profiles").upsert(
+        {
+          id: user.id,
+          role: form.role,
+          full_name: form.fullName,
+          phone: form.phone ? `+63${form.phone.replace(/\s/g, "")}` : null,
+          location_preferences: form.locations,
+        },
+        { onConflict: "id" }
+      );
+      if (profileError) throw new Error(profileError.message);
+    }
 
-    if (profileError) throw new Error(profileError.message);
-
-    // 3. Upload government ID if provided
+    // 3. Upload government ID if provided (non-fatal — user can re-upload later)
     if (form.idFile) {
       const ext = form.idFile.name.split(".").pop();
       const path = `${user.id}/government-id.${ext}`;
@@ -808,8 +822,10 @@ export function SignUpFlow() {
       if (storageError) console.warn("ID upload failed:", storageError.message);
     }
 
-    router.push("/dashboard");
-    router.refresh();
+    // Hard navigation ensures the session cookie is sent with the request
+    // to /dashboard. router.push() is too fast — the cookie isn't flushed
+    // yet and the middleware would see no session and redirect to /home.
+    window.location.href = "/dashboard";
   }
 
   return (
