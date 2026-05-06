@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getUser, getUserProfile } from "@/lib/supabase/cached";
 import SidebarNavigation from "../shared/components/SidebarNavigation";
 
 export default async function UsersLayout({
@@ -7,19 +7,10 @@ export default async function UsersLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const user = await getUser();
   if (!user) redirect("/sign-in");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, role, id_verified")
-    .eq("id", user.id)
-    .single();
+  const profile = await getUserProfile(user.id);
 
   return (
     <SidebarNavigation

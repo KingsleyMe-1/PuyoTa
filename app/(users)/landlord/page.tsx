@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getUser, getUserProfile } from "@/lib/supabase/cached";
 import MessagesView from "@/app/shared/components/MessagesView";
 import VerificationView from "@/app/shared/components/VerificationView";
 import LandlordOverview from "./components/LandlordOverview";
@@ -21,27 +22,25 @@ export default async function LandlordPage({ searchParams }: Props) {
   const listingId = listing ? parseInt(listing, 10) : null;
   const showDetail = listingId !== null && !Number.isNaN(listingId);
 
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  // getUser() is deduplicated via React.cache — the layout already called it,
+  // so this returns the cached result with no extra network request.
+  const user = await getUser();
   if (!user) redirect("/sign-in");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name")
-    .eq("id", user.id)
-    .single();
+  const supabase = await createClient();
 
-  const { data: verification } = await supabase
-    .from("listings")
-    .select("id")
-    .eq("landlord_id", user.id)
-    .eq("id_verified", false)
-    .limit(1)
-    .single();
+  // getUserProfile() is cached — returns instantly (already fetched by layout).
+  // The verification query runs in parallel with the profile retrieval.
+  const [profile, { data: verification }] = await Promise.all([
+    getUserProfile(user.id),
+    supabase
+      .from("listings")
+      .select("id")
+      .eq("landlord_id", user.id)
+      .eq("id_verified", false)
+      .limit(1)
+      .single(),
+  ]);
 
   const firstName =
     (profile?.full_name ?? (user.user_metadata?.full_name as string | undefined) ?? user.email ?? "")

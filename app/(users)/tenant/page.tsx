@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getUser, getUserProfile } from "@/lib/supabase/cached";
 import SavedListingsView from "@/app/(users)/tenant/components/SavedListingsView";
 import MessagesView from "@/app/shared/components/MessagesView";
 import VerificationView from "@/app/shared/components/VerificationView";
@@ -21,31 +21,19 @@ export default async function TenantPage({ searchParams }: Props) {
   const listingId = listing ? parseInt(listing, 10) : null;
   const showDetail = listingId !== null && !Number.isNaN(listingId);
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  // getUser() is deduplicated via React.cache — returns the cached result
+  // from the layout's call; no additional network request to Supabase Auth.
+  const user = await getUser();
   if (!user) redirect("/sign-in");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name")
-    .eq("id", user.id)
-    .single();
-
-  const { data: verification } = await supabase
-    .from("profiles")
-    .select("id_verified")
-    .eq("id", user.id)
-    .single();
-
-  
+  // getUserProfile() is also cached — returns instantly.
+  // Replaces the two separate sequential profile queries that existed before.
+  const profile = await getUserProfile(user.id);
   const firstName =
     (profile?.full_name ?? (user.user_metadata?.full_name as string | undefined) ?? user.email ?? "")
       .split(" ")[0] || "there";
 
-  const verificationStatus = verification?.id_verified ? "verified" : "unverified";
+  const verificationStatus = profile?.id_verified ? "verified" : "unverified";
 
   // Messages view needs its own scroll context
   if (view === "messages") {
